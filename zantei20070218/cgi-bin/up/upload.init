@@ -1,0 +1,339 @@
+#
+#   STRANGE UPLOADER 設定ファイル
+#
+##################################################
+
+# あぷろだのタイトル
+$TITLE = '暫定あぷろだ';
+
+# このスクリプトのURL
+# このままの設定で動作しない場合は正確なURLを入力してください。
+$CGIURL = $ENV{SCRIPT_NAME};
+
+# 基準URL
+# スタイルシートやJavaScriptファイルのあるディレクトリを指定
+# インデックスページ自動作成使用時、index.htmlをupload.cgiのあるディレクトリ以外に
+# 設定したときには、絶対URLで記述する必要がある
+$BASE_URL = '.';
+
+# 記録ファイルのパス
+$LOG_FILE = './data/upload.log';
+
+# アップロードデータの格納先ディレクトリ
+$STORE_DIR = './stored';
+
+# アップロードデータの格納先ディレクトリのURL
+# あなたの環境に合わせてを正確なURLを入力してください。
+$STORE_URL = "http://$ENV{SERVER_NAME}/cgi-bin/up/stored/";
+# gw.cgiを使う時
+# $STORE_URL = "./gw.cgi/";
+
+# タイトルの下に表示するお知らせ
+$INFORMATION = <<'_EOF';
+<pre>　　　　　 旦~
+ヽ(´ー｀)ノ</pre>
+_EOF
+
+# リンクバー
+$LINK_BAR = <<'_EOF';
+ | <a href="http://www.ge.st98.arena.ne.jp/cgi-bin/bbs.cgi">暫定</a>
+_EOF
+
+# バナー広告
+$BANNER = '';
+
+# スタイルシート指定
+# パスとタイトルを列挙してください。複数指定するとJavaScriptを使った
+# 選択フォームで自由に切り替えることができるようになります。（ブラウザによっては表示されない）
+@STYLESHEET = (
+	'style.css',	'スタイル１',
+	'style2.css',	'スタイル２',
+);
+
+# HTMLのBODY設定
+$BODY = '<body>';
+
+# 保存ファイル名の接頭辞
+$PREFIX = 'zup';
+
+# デフォルトの拡張子
+$DEF_EXT = 'xxx';
+
+# ローカルのファイル名を記録・表示させるか
+#   0 : 表示しない
+#   1 : 表示する
+#   2 : リネームもする（ファイル名に半角英数字と- _ .のみが使われているとき）
+$LOCAL_FILENAME_SW = 2;
+
+# アップロードファイルの最大サイズ（キロバイト単位）
+# 0で無制限
+$MAX_UPLOAD_SIZE = 1024 * 4;
+
+# アップロードファイルの最小サイズ（キロバイト単位）
+# 0で無制限
+$MIN_UPLOAD_SIZE = 0;
+
+# アップロードデータ最大ディスク保存量（キロバイト単位）
+# この値を超えると自動的にファイルが（記事ごと）削除されます。
+# この機能を使用しないときは、変数を空または0にします。
+# 
+# サーバの限界ぎりぎりに設定する場合、最低$MAX_UPLOAD_SIZE分の余裕を残しておく必要があるかも
+$DISK_SPACE_MAX = 1024 * 10;
+
+# ログ保存件数
+$LOGSAVE = 2000;
+
+# 1ページにおける表示件数
+$MSGDISP = 20;
+
+# 画像閲覧の1ページにおける表示件数
+$IMAGEDISP = 5;
+
+# コメントの長さ制限（バイト単位）
+$MAX_COMMENT_SIZE = 250;
+
+# コメントの自動リンク
+#   0 : 無効
+#   1 : 有効
+$AUTOLINK = 1;
+
+# カウンタファイル
+# 使用しないときはこの変数を空にします。
+$COUNTFILE = './data/count.file';
+
+# 管理者パスワードファイル
+# ファイルの中身は空のままアップロードしてください。
+$ADMINPASSWD = './data/admin.passwd';
+
+##################################################
+# セキュリティに関する設定
+##################################################
+
+# 投稿者IPアドレスの記録
+#   0 : 記録しない
+#   1 : 記録する
+$IP_REC = 1;
+
+# User Agent(ブラウザ名)の記録
+#   0 : 無効
+#   1 : 有効
+$UA_REC = 1;
+
+# 連続投稿の制限用データファイル
+# 使用しないときはこの変数を空にします。
+$RENZOKU_FILE = './data/renzoku.file';
+
+# 連続投稿を許可する間隔(秒)
+$RENZOKU_TIME = 1;
+
+# アクセス制限用データファイル
+# このファイルにはアクセスを禁止したいホスト名もしくはIPアドレスを記述してください。
+# 使用しないときはこの変数を空にします。
+#
+# 指定方法
+# ホスト名（ドメイン）で指定する際、後方部分が一致したホストはすべて対象になります。
+# IPで指定するときは 192.168.1.64/26 のようにマスク指定ができます。
+# 192.168.0.0 のようにIPの末尾を 0 にすることでも同様の指定ができます。
+# シャープで始まる行はコメントとして無視されます。
+$ACCESS_CONTROL = './data/deny.file';
+
+# 指定したサイトから参照を禁止する
+@EXCEPT_REFERER = (
+#	'http://ime.nu/',
+);
+
+# HTMLファイルの拡張子を.txtに変更する
+#   0 : 変更しない
+#   1 : 変更する
+# .htmlの拡張子でSSIが動くときは必ず1にすること
+$HTML_EXT = 0;
+
+##################################################
+# インデックスページ自動作成に関する設定
+##################################################
+
+# インデックスページ自動作成
+#   0 : 無効
+#   1 : 有効
+# infoseekのように他サイトからcgiを呼び出せないサーバで使用するといいかも
+# これを使うときはカウンタがあまり意味をなさない
+$MAKE_INDEX_SW = 0;
+
+# インデックスファイルのパス
+$INDEX_FILEPATH = './index.html';
+
+##################################################
+# お絵描き機能に関する設定
+##################################################
+
+# お絵描き機能を使うか
+#   0 : 無効
+#   1 : 有効
+$OEKAKI_SW = 1;
+
+# お絵描き画像の最大サイズ
+# 縦横共通
+$OEKAKI_MAX_SIZE = 600;
+
+# お絵描き画像のデフォルトサイズ
+# 正方形がデフォ
+$OEKAKI_DEF_SIZE = 300;
+
+# アニメデータの記録を行なうか
+#   0 : 無効
+#   1 : 有効
+$OEKAKI_ANIMATION = 1;
+
+# お絵描きアプレットの設定
+%APPLET_PARAMS = (
+	#アイコン等アプレットのテキストカラー 
+	color_text	=> '#FFFFFF',
+	
+	#アプレットの背景カラー
+	color_bk	=> '#FFFFFF',
+	
+	#アプレットの網状の線のカラー
+	color_bk2	=> '#E0E0F0',
+	
+	#アイコンのカラー
+	color_icon	=> '#007F7F',
+	
+	#アイコンの枠のカラー
+	color_frame	=> '#004040',
+	
+	#アイコンを選択時出る枠のカラー 
+	color_iconselect => '#004040',
+	
+	#スクロールバーのバーのカラー
+	color_bar	=> '#006060',
+	
+	#スクロールバーのハイライトカラー 
+#	color_bar_hl	=> '',
+	
+	#スクロールバーのフレームのハイライト
+#	color_bar_frame_hl => '',
+	
+	#スクロールバーの太さ
+#	bar_size	=> '',
+	
+	#ボタンの色(ツールバー)
+	tool_color_button => '#D2D8FF',
+	
+	#ボタンの色(ツールバー)
+	tool_color_button2 => '#D2D8FF',
+	
+	#テキストの色(ツールバー)
+	tool_color_text	=> '#785050',
+	
+	#変更バーの色(ツールバー)
+	tool_color_bar	=> '#FFFFFF',
+	
+	#枠の色(ツールバー)
+	tool_color_frame => '#303C6D',
+);
+
+
+##################################################
+# ちょっとむずかしい設定
+##################################################
+
+# 一時保存ファイル作成ディレクトリ
+$TMPDIR = $STORE_DIR;
+
+# MimeType
+# 拡張子は必ず小文字で
+%MIMETYPE = (
+	# テキスト
+	'c' 	=> 'text/c$',
+	'css'	=> 'text/css',
+	'cvs'	=> 'text/comma-separated-values',
+	'html'	=> 'text/html',
+	'rtf'	=> 'text/rtf|application/rtf',
+	'txt'	=> 'text/plain',
+	'wri'	=> 'application/x-mswrite',
+	'xml'	=> 'text/xml|application/xml',
+	# 画像
+	'bmp'	=> 'image/(?:x-(?:MS-)?)?bmp',
+	'gif'	=> 'image/gif',
+	'ico'	=> 'image/x-icon',
+	'jpg'	=> 'image/.*jpeg',
+	'mag'	=> 'image/.*mag',
+	'png'	=> 'image/(?:x-)?png',
+	'psd'	=> 'image/x-photoshop',
+	'tif'	=> 'image/(?:x-)?tiff',
+	# ビデオ
+	'asf'	=> 'video/x-ms-asf(?:-plugin)?|application/x-mplayer2',
+	'avi'	=> 'video/(?:avi|(?:x-)?msvideo)',
+	'mov'	=> 'video/quicktime',
+	'mpg'	=> 'video/(?:x-)?mpe?g',
+	'wma'	=> 'audio/x-ms-wma',
+#wmv追加
+	'wmv'	=> 'video/x-ms-wmv',
+	# オーディオ
+	'aif'	=> 'audio/(?:x-(?:pn-)?)?aiff',
+	'au'	=> 'audio/(?:basic|x-pn-au)',
+	'm3u'	=> 'audio/(mpegurl|x-mpegurl|x-scpls)',
+	'mid'	=> 'audio/(?:x-)?midi?|application/x-midi|music/crescendo|x-music/x-midi',
+	'mod'	=> 'audio/(?:x-)?mod',
+	'mp3'	=> 'audio/(?:x-)?mp(?:3|g|eg)',
+#ogg追加
+	'ogg'	=> 'application/ogg',
+	'ra'	=> 'audio/(?:vnd\\.rn-|x-)realaudio',
+	'ram'	=> 'audio/x-pn-realaudio',
+	'rm'	=> 'application/vnd\\.rn-realmedia',
+	'rpm'	=> 'audio/x-pn-realaudio-plugin',
+	'vqe'	=> 'audio/x-twinvq-plugin',
+	'vqf'	=> 'audio/x-twinvq|application/x-twinvq',
+	'wav'	=> 'audio/(?:(?:x-(?:pn-)?)?wav|x-pn-windows-(?:acm|pcm))',
+	# アーカイブ
+	'arj'	=> 'application/arj',
+#cab追加
+	'cab'	=> 'application/x-cab-compressed',
+	'gz'	=> 'application/x-gzip',
+	'lzh'	=> 'lha|lzh|LhasaArchive|LHMelt',
+	'rar'	=> 'application/x-rar-compressed',
+	'sit'	=> 'application/x-stuffit',
+	'tar'	=> 'application/x-tar',
+	'uue'	=> 'application/x-uuencode',
+	'yz1'	=> 'application/x-yz1',
+	'zip'	=> '[^g]zip',
+	# その他
+	'bin'	=> 'application/(?:octet-stream|x-macbinary)',
+	'dcr'	=> 'application/x-director',
+	'exe'	=> 'application/x-(?:exe|msdownload)',
+	'jar'	=> 'application/java-archive',
+	'pdf'	=> 'application/pdf',
+	'swf'	=> 'application/x-shockwave-flash',
+	# 拡張子指定のみ
+	'it'	=> undef,
+	's3m'	=> undef,
+	'xm'	=> undef,
+	'kif'	=> undef,
+	'ki2'	=> undef,
+	'sgf'	=> undef,
+);
+
+# umask値。ファイル作成時のパーミッションに影響
+#umask 022;
+
+# タイムゾーン
+$ENV{TZ} = 'JST-9';
+
+# ファイル名の最大サイズ
+$MAX_FILENAME_SIZE = 64;
+
+# ページ番号の最大表示数
+$MAX_PAGE_INDEX = 15;
+
+# クッキーのフィールド名
+$COOKIE_NAME = 'StrangeUploader';
+
+# 文字化け対策用テスト送信文字列
+$MOJIBAKE_TAISAKU = '旦~';
+
+# text/plain にバナーを入れる一部のサーバ（infoseek等）は
+# お絵描きでエラーになった時、エラーメッセージを返せない。
+# 回避するなら 1
+$TEXT_BANNER = 0;
+
+##################################################

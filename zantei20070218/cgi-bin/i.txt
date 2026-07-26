@@ -1,0 +1,1574 @@
+#! /usr/local/bin/perl
+
+#
+#	くずはすくりぷと Rev.0.1 Preview 9 (2000.9.3)
+#	 (掲示板本体)
+#	
+#	  mailto	kuzuha@kurumi.ne.jp
+#	  webpage	http://kuzuha.tripod.co.jp/
+#	
+#	TABSIZE=4
+#
+
+#猫・i-mode用リンク集追加(20040123)
+#猫・下に行く、を追加(2002/08/16)
+
+# 共通設定ファイルの読込
+require './bbsset.txt';
+
+#パスワードファイルの読み込み
+require './etc/bbspass.pl';
+
+# 特殊変換コードの読込
+require './change_xxx.txt';
+
+###############################################################################
+#  設定
+###############################################################################
+
+# 掲示板CGIのURL
+#$cgiurl = 'http://www.ge.st98.arena.ne.jp/cgi-bin/i.cgi';
+$CGIURL = $ENV{SCRIPT_NAME};
+
+# gzip圧縮の初期値
+#   0 : 圧縮しない
+#   1 : 圧縮する
+$gzipu = 0;
+
+# １画面に表示するメッセージの表示数
+#  (1～メッセージの保存数)
+$msgdisp = 10;
+
+# 掲示板の名前
+$bbstitle = 'i暫定';
+
+if ( !$FORM{'newtitle'} ) {
+	$FORM{'newtitle'} = $bbstitle;
+}
+
+# フォロー投稿画面表示
+#   0 : 新規ウィンドウをオープンして表示
+#   1 : 同一画面に表示
+# （同一画面表示は不具合が残るため、あまり推奨できません）
+$followwin = 1;
+
+
+###############################################################################
+#  システム用設定・変数（特に指示がない限り変更不可）
+###############################################################################
+
+$tmpl_msg = <<EOF;
+\$iwdate\$btn\$user
+<pre>\$msg</pre><p>
+EOF
+
+$S_pstime = 1;
+$S_pltime = 3600;
+$S_cexp = 7776000;
+$S_alchk[0] = '';
+$S_alchk[1] = 'checked';
+$S_gzchk[0] = '';
+$S_gzchk[1] = 'checked';
+
+
+###############################################################################
+#  時刻フォーマット変換
+###############################################################################
+
+sub getnowdate {
+	
+	( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdat )
+		= localtime ( $_[0] );
+	$year += 1900;
+	$mon++;
+	$nowdate = sprintf ( "%d/%02d/%02d(%s)%02d時%02d分%02d秒", 
+	  $year, $mon, $mday, 
+	  ( '日', '月', '火', '水', '木', '金', '土' )[$wday],
+	  $hour, $min, $sec );
+}
+
+#imode用
+sub getnowdate2 {
+	
+	( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdat )
+		= localtime ( $_[0] );
+	$year += 1900;
+	$mon++;
+	$nowdate = sprintf ( "%02d:%02d:%02d", 
+	  $hour, $min, $sec );
+
+}
+
+###############################################################################
+#  フォームデータ取得
+###############################################################################
+
+sub getformdata {
+	
+	my ( $formbuf, $name, $value );
+	
+	if ( $ENV{'REQUEST_METHOD'} eq 'POST' ) {
+		read ( STDIN, $formbuf[0], $ENV{'CONTENT_LENGTH'} );
+	} else {
+		$formbuf[0] = $ENV{'QUERY_STRING'};
+	}
+	
+	if ( $formbuf[0] ) {
+	
+	# ケータイからのアクセスは甘く
+	$agnt = $ENV{'HTTP_USER_AGENT'};
+	#	if ($agnt !~ /DoCoMo/i) {
+	#
+	#		&prterror ( '呼び出し元が不正です。' ) 
+	#		  if ( $ENV{'HTTP_HOST'} && ! ( $ENV{'HTTP_HOST'} =~ /$bbshost/i ) );
+	#		
+	#	}
+	
+		$referer = $ENV{'HTTP_REFERER'};
+		$referer =~ s/\+/ /g;
+		$referer =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack ( "C", hex ( $1 ) )/eg;
+		
+		foreach ( split ( /&/, $formbuf[0] ) ) {
+			( $name, $value ) = split ( /=/ );
+			$value =~ s/\+/ /g;
+			$value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack ( "C", hex ( $1 ) )/eg;
+			$value =~ s/&/&amp;/g;
+			$value =~ s/</&lt;/g;
+			$value =~ s/>/&gt;/g;
+			$value =~ s/"/&quot;/g;# スタイルシート対策
+			$value =~ s/\r\n/\r/g;
+			$value =~ s/\n/\r/g;
+			$value =~ s/\r$//;
+			$value =~ s/\,/\0/g;
+			$FORM{$name} = $value;
+		}
+	}
+}
+
+
+###############################################################################
+#  日本語文字コード変換
+###############################################################################
+
+sub jconv {
+	
+	if ( ( $FORM{'k'} ne 'あ' && $FORM{'v'} ) || $FORM{'j'} ) {
+		# [2026-07-18] jcode.pl不使用化（スタンドアロン方針、猫）
+		#require "$jcode";
+		foreach ( keys %FORM ) {
+			#&jcode'convert ( *FORM{$_}, 'sjis' );
+		}
+	}
+}
+
+
+###############################################################################
+#  環境変数取得
+###############################################################################
+
+sub getenv {#
+	
+	if ( $uarec ) {
+		$agent = $ENV{'HTTP_USER_AGENT'};
+		$agent =~ s/</&lt;/g;
+		$agent =~ s/>/&gt;/g;
+		$agent =~ s/,/./g;
+	}
+	
+	if ( !$iprec ) { return; }
+	
+	$addr = $ENV{'REMOTE_ADDR'};
+	$host = $ENV{'REMOTE_HOST'};
+	if ( $addr eq $host || !$host ) {
+		$host = gethostbyaddr ( pack ( 'C4', split ( /\./, $addr ) ), 2 ) || $addr;
+	}
+	
+	$proxyflg = 0;
+	
+	if ( $ENV{'HTTP_CACHE_CONTROL'} )			{ $proxyflg = 1; }
+	if ( $ENV{'HTTP_CACHE_INFO'} )				{ $proxyflg += 2; }
+	if ( $ENV{'HTTP_CLIENT_IP'} )				{ $proxyflg += 4; }
+	if ( $ENV{'HTTP_FORWARDED'} )				{ $proxyflg += 8; }
+	if ( $ENV{'HTTP_FROM'} )					{ $proxyflg += 16; }
+	if ( $ENV{'HTTP_PROXY_AUTHORIZATION'} )		{ $proxyflg += 32; }
+	if ( $ENV{'HTTP_PROXY_CONNECTION'} )		{ $proxyflg += 64; }
+	if ( $ENV{'HTTP_SP_HOST'} )					{ $proxyflg += 128; }
+	if ( $ENV{'HTTP_VIA'} )						{ $proxyflg += 256; }
+	if ( $ENV{'HTTP_X_FORWARDED_FOR'} )			{ $proxyflg += 512; }
+	if ( $ENV{'HTTP_X_LOCKING'} )				{ $proxyflg += 1024; }
+	if ( $agent =~ /cache|delegate|gateway|httpd|proxy|squid|www|via/i ) {
+		$proxyflg += 2048;
+	}
+	if ( $host =~ /cache|^dns|dummy|^ns|firewall|gate|keep|mail|^news|pop|proxy|smtp|w3|^web|www/i ) {
+		$proxyflg += 4096;
+	}
+	if ( $host eq $addr ) {
+		$proxyflg += 8192;
+	}
+	
+	$realaddr = '';
+	$realhost = '';
+	if ( $proxyflg > 0 ) {
+		
+		if ( $ENV{'HTTP_X_FORWARDED_FOR'} =~
+		  s/^(\d+)\.(\d+)\.(\d+)\.(\d+).*/$1.$2.$3.$4/ ) {
+			$realaddr = "$1.$2.$3.$4";
+		} elsif ( $ENV{'HTTP_FORWARDED'} =~ 
+		  s/.*\s(\d+)\.(\d+)\.(\d+)\.(\d+)/$1.$2.$3.$4/ ) {
+			$realaddr = "$1.$2.$3.$4";
+		} elsif ( $ENV{'HTTP_VIA'} =~
+		  s/.*\s(\d+)\.(\d+)\.(\d+)\.(\d+)/$1.$2.$3.$4/ ) {
+			$realaddr = "$1.$2.$3.$4";
+		} elsif ( $ENV{'HTTP_CLIENT_IP'} =~
+		  s/(\d+)\.(\d+)\.(\d+)\.(\d+)/$1.$2.$3.$4/ ) {
+			$realaddr = "$1.$2.$3.$4";
+		} elsif ( $ENV{'HTTP_SP_HOST'} =~
+		  s/(\d+)\.(\d+)\.(\d+)\.(\d+)/$1.$2.$3.$4/ ) {
+			$realaddr = "$1.$2.$3.$4";
+		} elsif ( $ENV{'HTTP_FORWARDED'} =~ s/.*\sfor\s(.+)/$1/ ) {
+			$realhost = "$1";
+		} elsif ( $ENV{'HTTP_FROM'} =~ s/\-\@(.+)/$1/ ) {
+			$realhost = "$1";
+		}
+		
+		if ( !$realaddr && $realhost ) {
+			$realpackaddr = gethostbyname ( $realhost );
+			( $a, $b, $c, $d ) = unpack ( 'C4', $realpackaddr );
+			$realaddr = "$a.$b.$c.$d";
+		}
+		
+			if ( $realaddr eq '' ) {
+				$anonyproxyflg = 1;
+			} else {
+				if ( ($realaddr) && ($realhost eq '') ) {
+					$realhost = $realaddr;
+				}
+			}
+		
+		if ( $realaddr && $iprec != 2 ) {
+			$host = '(leak)';
+		}
+		
+	} else {
+		$host = '(none)' if ( $iprec != 2 );
+	}
+
+}#
+
+
+###############################################################################
+#  リファラー制限
+###############################################################################
+
+$jumpurl = "http://rotten.com/";
+$referer = $ENV{'HTTP_REFERER'};
+#
+#	@referer_list = (
+#	"ime\.nu",
+#	"pinktower\.com",
+#	"2ch",
+#	"ohayou\.com",
+#	"15ch",
+#	"bbspink",
+#	"jbbs",
+#	"machibbs",
+#	"megabbs",
+#	"shitaraba",
+#	"cgigame\.com"
+#	);
+
+#	foreach $referer_list2 (@referer_list) {
+#
+#		if ( $referer =~ /$referer_list2/i ) {
+#			print "Content-type: text/html\n";
+#			print "Location: $jumpurl\n\n";
+#			exit;
+#		}
+#
+#	}
+
+###############################################################################
+#  自動巡回書込ロボット対策
+###############################################################################
+
+# BBS Writeは配布終了
+# D-Engineは現役
+# ロボットはユーザエージェントを変更できるので
+# その場合はIPを制限すること
+
+# ジャンプ先のURL
+$jumpurl = 'http://www.rotten.com/';
+
+	if ($ENV{'HTTP_USER_AGENT'} =~ /BBS Write|D-Engine/i ){
+		print "Content-type: text/html\n";
+		print "Location: $jumpurl\n\n";
+		exit;
+	}
+
+
+###############################################################################
+#  文字列のエンコード
+###############################################################################
+
+sub escstring {
+	
+	my ( $srcstr ) = $_[0];
+	
+	$srcstr =~ s/([^a-zA-Z0-9\s])/sprintf ( "%%%lx", ( unpack ( "C", $1 ) ) )/eg;
+	$srcstr =~ s/ /\+/g;
+	
+	return $srcstr;
+}
+
+
+###############################################################################
+#  メッセージ読み込み
+###############################################################################
+
+sub loadmessage {
+	
+	my $openlog;
+	
+	if ( !$FORM{'ff'} ) {
+		$openlog = $logfilename;
+	} else {
+		# [2026-07-18] 脆弱戀2: マッチ失敗時に直前の$1を使い回す問題を修正（猫）
+		unless ( $FORM{'ff'} =~ /^([\w.]*)$/ ) {
+			&prterror ( '不正なログファイル名です。' );
+		}
+		$openlog = "$oldlogfiledir/$1";
+	}
+	
+	open ( READLOG, '<', $openlog ) || &prterror ( 'メッセージ読み込みに失敗しました' );
+	eval 'flock ( READLOG, 1 )';
+	seek ( READLOG, 0, 0 );
+	@logdata = <READLOG>;
+	eval 'flock ( READLOG, 8 )';
+	close ( READLOG );
+}
+
+
+###############################################################################
+#  メッセージ１件取得
+###############################################################################
+
+sub getmessage {
+	my ( $raw_message, $need_rmsg ) = @_;
+
+	( $ndate, $postid, $protect, $thread, $phost, $agent, $user, $mail, $title, $msg )
+	  = split ( /\,/, $raw_message );
+	$msg =~ s/\n$//;
+	$title =~ s/\0/\,/g;
+	$mail =~ s/\0/\,/g;
+	$user =~ s/\0/\,/g;
+	$msg =~ s/\0/\,/g;
+        $msg =~ s/\r/\n/g; # ここを追加
+	$wdate = &getnowdate ( $ndate );
+	# i-mode用の短い日付
+	$iwdate = &getnowdate2 ( $ndate );
+
+	# タグ許可
+	$rmsg = $msg if $need_rmsg;
+	$msg = &tag_change($msg, 0);
+}
+
+
+###############################################################################
+#  メッセージ１件出力
+###############################################################################
+
+sub prtmessage {
+
+	if ( $FORM{'multizilla'} ) {
+		$addblank = "\&multizilla=$FORM{'multizilla'}";
+	} else {
+		$addblank = '';
+	}
+
+	if ( ( $FORM{'newtitle'} ) eq $bbstitle ) {
+		$addnewtitle = '';
+	} else {
+		$addnewtitle = "\&newtitle=$FORM{'newtitle'}";
+	}
+
+	#セキュリティホール対策
+	$FORM{'e'} =~ /^([\w.]*)$/;
+	$FORM{'e'} = $1;
+
+	my $mode = $_[0];	# 0 : 掲示板 1 : 過去ログ(ボタン表示あり) 2 : 過去ログ(ボタン表示なし) 3 : 投稿者検索窓
+	my $tlog = $_[1];
+	my ( $tag, $refdate, $prtmessage, $btn, $btnfollow, $btnauthor, $btnthread, $newwin,
+	  $envlist, $envaddr, $envua, $envbr );
+	
+	# 「参考」も別窓で開く
+	if ( $mode == 0 || $mode == 3 ) {
+	
+	# target=_blankに置き換え、multizillaのタブで開く
+	if ( ( !$followwin ) && ( !$FORM{'multizilla'} ) ) {
+		$newwin = " target=\"link\"";
+	} elsif ( $FORM{'multizilla'} ) {
+		$newwin = " target=\"_blank\"";
+	} else {
+		$newwin = '';
+	}
+	
+		$msg =~ s/<a href=\"m=f\&s=(\d+)\&r=(\S+)\">(.*)<\/a>//i;
+		$msg =~ s/<a href=\"mode=follow\&search=(\d+)\&ref=(\S+)\">(.*)<\/a>//i;
+	} else {
+		$msg =~ s/<a href=\"m=f\&s=(\d+)\&r=(\S+)\">(.*)<\/a>//i;
+		$msg =~ s/<a href=\"mode=follow\&search=(\d+)\&ref=(\S+)\">(.*)<\/a>//i;
+	}
+	
+	if ( ( $mode == 0 || $mode == 3 || ( $mode == 1 && $oldlogbtn && $oldlogfmt ) ) && ( !$FORM{'noth'} ) ) {
+		
+	# target=_blankに置き換え、multizillaのタブで開く
+	if ( ( !$followwin ) && ( !$FORM{'multizilla'} ) ) {
+		$newwin = " target=\"link\"";
+	} elsif ( $FORM{'multizilla'} ) {
+		$newwin = " target=\"_blank\"";
+	} else {
+		$newwin = '';
+	}
+	
+		# フォロー投稿ボタン
+		$btnfollow = "<a href=\"i\.cgi\?m=f\&u=".
+		  &escstring ( $FORM{'u'} ) .
+		  "&d=$FORM{'d'}&p=$toppostid&s=$postid\&c=$FORM{'c'}$addblank$addnewtitle";
+		if ( !$mode ) {
+			$btnfollow .= "\"";
+		} elsif ( $mode == 3 ) {
+			$btnfollow .= "&ac=1\"";
+		} else {
+			#$btnfollow .= "&ff=$tlog\"";
+			$btnfollow .= "\&ff=$FORM{'e'}\"";
+		}
+		$btnfollow .= "$newwin>$txtfollow</a>　\n";
+		
+		# 投稿者検索ボタン
+
+		# target=_blankに置き換え、multizillaのタブで開く
+		# ★と◆はいずれにせよtargetで開く
+		if ( $FORM{'multizilla'} ) {
+			$newwin2 = ' target="_blank"';
+		} else {
+			$newwin2 = ' target="link"';
+		}
+
+		# 空白投稿は★を表示しない
+		if ( ( $anonymous_search ) || ( ( $user ne $anonymous_word ) && ( !$anonymous_search ) ) ) {
+
+			$btnauthor = "<a href=\"$cgiurl\?m\=s\&s\=".
+			  &escstring ( $user ) .
+			  "\&c=$FORM{'c'}$addblank$addnewtitle\"".
+			  "$newwin2>$txtauthor</a>　\n";
+
+		} else {
+			$btnauthor = '';
+		}
+		
+		# スレッド表示ボタン
+		# 最初の投稿から◆をつける
+		if ( ( !$thread ) && ( $first_thread ) ) {
+			$thread = $postid;
+		}
+
+		# 過去ログのボタン検索は常時◆がつく
+		if ( ( !$thread ) && ( $mode == 1 ) ) {
+			$thread = $postid;
+		}
+
+		if ( ( $thread ) || ( ( !$thread ) && ( $first_thread ) ) ) {
+			$btnthread = "<a href=\"$cgiurl\?m\=t\&c=$FORM{'c'}".
+			  "\&s\=$thread$addblank$addnewtitle\&ff=$FORM{'e'}\"$newwin2>$txtthread</a>\n";
+		} else {
+			$btnthread = '';
+		}
+		
+		$btn = "$btnfollow";
+	} else {
+		$btn = '';
+	}
+	
+	# メールアドレス
+	if ( $mail ) {
+		$user = "<a href=\"mailto\:$mail\">$user<\/a>";
+	}
+	
+	# _blankで開く
+	if ( $FORM{'multizilla'} ) {
+		$msg =~ s/target\=\"link\"/target\=\"_blank\"/g;
+	}
+
+	
+	# 環境変数
+	if ( $ipprint ) {
+		$envaddr = $phost;
+	} else {
+		$envaddr = '';
+	}
+	if ( $uaprint ) {
+		$envua = $agent;
+	} else {
+		$envua = '';
+	}
+	if ( $ipprint && $uaprint ) {
+		$envbr = '<br>';
+	}
+	if ( $envaddr || $envua ) {
+		$envlist = qq!<font size="-1"><i>$envaddr$envbr$envua</i></font>!;
+	} else {
+		$envlist = '';
+	}
+	
+	# パケ代節約、■タグ無し
+	if ( $FORM{'noth'} ) {
+		$msg =~ s/<a href=\S+ target=\"link\">(\S+)<\/a>/$1/ig;
+	}
+
+	# メッセージ表示内容定義
+	$prtmessage = qq($tmpl_msg);
+	$prtmessage =~ s/(\$[A-Za-z0-9\'\{\}]+)/$1/eeg;
+	
+	# 合計1000byte以上は飛ばす。たぶん。
+	return $prtmessage if ( (length $prtmessage) < 1000 );
+}
+
+
+###############################################################################
+#  こわれにくいカウンター処理
+###############################################################################
+
+sub counter {
+	
+	my ( @count, @filenumber, @sortedcount, $maxcount, $mincount );
+	
+	for ( $i = 0 ; $i < $countlevel ; $i++ ) {
+		open ( IN, "$countfile$i.dat" );
+		$count[$i] = <IN>;
+		$filenumber{$count[$i]} = $i;
+		close ( IN );
+	}
+	
+	@sortedcount = sort { $a <=> $b; } @count;
+	$maxcount = $sortedcount[$countlevel-1];
+	$mincount = $sortedcount[0];
+	
+	$maxcount++;
+	
+	if ( open ( OUT, ">$countfile$filenumber{$mincount}.dat" ) ) {
+		print OUT $maxcount;
+		close ( OUT );
+		return $maxcount;
+	} else {
+		return '<font color="red">カウンターファイルの出力エラーです</font>';
+	}
+}
+
+
+###############################################################################
+#  参加者カウント
+###############################################################################
+
+sub mbrcount {
+	
+	my ( @hostbin, @ukey, @cntdata, $mbrcount, $cuser, $ctime, $cadd );
+	
+	if ( $cntfilename ) {
+		undef @cntdata;
+		$mbrcount = 0;
+		@hostbin = split ( /\./, $ENV{'REMOTE_ADDR'} );
+		for ( $i = 0 ; $i < 4 ; $i++ ) {
+			$hostbin[$i] = vec ( pack ( 'C4', $hostbin[$i] ), 0, 8 );
+		}
+		$ukey[0] = $hostbin[0] + $hostbin[1] + $hostbin[2] + $hostbin[3];
+		$ukey[1] = $hostbin[0] ^ $hostbin[1] & $hostbin[2] ^ $hostbin[3];
+		$ukey[2] = $ukey[0] * $ukey[1];
+		
+		if ( open ( UCNT, $cntfilename ) ) {
+			eval 'flock ( UCNT, 1 )';
+			seek ( UCNT, 0, 0 );
+			@cntdata = <UCNT>;
+			eval 'flock ( UCNT, 8 )';
+			close ( UCNT );
+			
+			$cadd = 0;
+			for ( $i = 0 ; $i < @cntdata ; $i++ ) {
+				( $cuser, $ctime ) = split ( /\,/, $cntdata[$i] );
+				chomp ( $ctime );
+				if ( $cuser eq $ukey[2] ) {
+					$cntdata[$i] = "$ukey[2],$nowtime\n";
+					$cadd = 1;
+					$mbrcount++;
+				} elsif ( ( $ctime + $cntlimit ) < $nowtime ) {
+					# 除外
+					$cntdata[$i] = '';
+				} else {
+					$mbrcount++;
+				}
+			}
+			if ( !$cadd ) {
+				push ( @cntdata, "$ukey[2],$nowtime\n" );
+				$mbrcount++;
+			}
+		} else {
+			push ( @cntdata, "$ukey[2],$nowtime\n" );
+			$mbrcount++;
+		}
+		
+		open ( UCNT, ">>$cntfilename" ) || &prterror ( '参加者カウントファイルの書き込みに失敗しました。' );
+		eval 'flock ( UCNT, 2 )';
+		truncate ( UCNT, 0 );
+		seek ( UCNT, 0, 0 );
+		print UCNT @cntdata;
+		close ( UCNT );
+		
+		return "$mbrcount名";
+	} else {
+		return;
+	}
+}
+
+
+###############################################################################
+#  htmlヘッダ部分表示
+###############################################################################
+
+sub prthtmlhead {
+	
+	my $headtitle = $_[0];
+	
+	# ヘッダ出力
+	print "Content-type: text/html\n";
+	if ( $gzip && $gzipu && ( $ENV{'HTTP_ACCEPT_ENCODING'} =~ /gzip/ ) ) {
+		print "Content-encoding: gzip\n\n";
+		open ( STDOUT, "| $gzip -1 -c" );
+		print "\n";
+	} else {
+		print "\n";
+	}
+	
+	# ヘッダのbyteを削る
+	print <<EOF;
+<html><head><title>$headtitle</title></head>
+$body
+<a name="top"></a><a href="#bottom">下</a>
+EOF
+}
+
+
+###############################################################################
+#  エラーメッセージ表示
+###############################################################################
+
+sub prterror {
+	
+	my $error = $_[0];
+	
+	print <<EOF;
+Content-type: text/html
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Pragma" content="no-cache">
+<title>$FORM{'newtitle'} (エラー)</title>
+</head>
+$body
+<H3>$error</H3>
+</body>
+</html>
+EOF
+	exit;
+}
+
+
+###############################################################################
+#  フォロー画面表示
+###############################################################################
+
+sub prtfollow {
+	
+	my $retry = $_[0];
+	my $success = 0;
+	my $formmsg;
+	
+	&loadmessage;
+	
+	&prterror ( 'パラメータがありません。' ) if ( !$FORM{'s'} );
+	
+	&prthtmlhead ( "ﾚｽ" );
+#猫追加20040123
+	print <<EOF;
+<a href="$cgiurl?c=$FORM{'c'}">戻</a> <a href="../i.html">写</a>
+EOF
+#ここまで
+
+	#print "<hr>\n";
+	foreach ( 0 .. @logdata - 1 ) {
+		&getmessage ( $logdata[$_] );
+		if ( $postid eq $FORM{'s'} ) {
+			&getmessage ( $logdata[$_], 1 );
+			$success = 1;
+			last;
+		}
+		$i++;
+	}
+	
+	if ( !$success ) {
+		print "<h3>指定されたメッセージが見つかりません。</h3></body></html>";
+		exit;
+	}
+	
+	if ( !$retry ) {
+		$formmsg = $rmsg;
+
+#		$formmsg =~ s/&gt; &gt;.*?\r//g;
+#		$formmsg =~ s/<a href=\"m=f\S+\">.*<\/a>//i;
+#		$formmsg =~ s/<a href=\S+ target=\"link\">(\S+)<\/a>/$1/ig;
+#		$formmsg =~ s/\r/\r&gt; /g;
+#		$formmsg = "&gt; $formmsg\r";
+#		$formmsg =~ s/\r&gt;\s+\r/\r/g;
+#		$formmsg =~ s/\r&gt;\s+\r$/\r/g;
+
+		$formmsg =~ s/&gt; &gt;.*?\n//g;
+		$formmsg =~ s/<A href=\"m=f\S+\">.*<\/A>//i;
+		$formmsg =~ s/<A href=\S+ target=\"link\">(\S+)<\/A>/$1/ig;
+		$formmsg =~ s/\n/\n&gt; /g;
+		$formmsg = "&gt; $formmsg\n";
+		$formmsg =~ s/\n&gt;\s+\n/\n/g;
+		$formmsg =~ s/\n&gt;\s+\n$/\n/g;
+
+		#$formmsg =~ s/&gt; &gt;.*?\r//g;
+		#$formmsg =~ s/<A href=\"m=f\S+\">.*<\/A>//i;
+		#$formmsg =~ s/<A href=\S+ target=\"link\">(\S+)<\/A>/$1/ig;
+		#$formmsg =~ s/\r/\r&gt; /g;
+		#$formmsg = "&gt; $formmsg\r";
+		#$formmsg =~ s/\r&gt;\s+\r/\r/g;
+		#$formmsg =~ s/\r&gt;\s+\r$/\r/g;
+
+		# 特殊な変換を戻す(色付けとか)
+		$formmsg = &change_from_xxx($formmsg);
+	} else {
+		$formmsg = &change_from_xxx($FORM{'v'});
+		$formmsg =~ s/<a href=\"m=f\S+\">.*<\/a>//i;
+	}
+	
+	#print &prtmessage ( 0, '' );
+	
+	if ( !$thread ) {
+		$thread = $postid;
+	}
+	
+	if ( $user =~ /\<a\shref=\"mailto\:.*\"\>(.*)\<\/a\>/ ) {
+		$user = $1;
+	}
+	#print "フォロー記事投稿<br>\n";
+	&prtform ( "＞$user$fsubj", "$formmsg\r", '' );
+	
+	print <<EOF;
+<br>
+<input type="hidden" name="p" value="$FORM{'p'}">
+<input type="hidden" name="s" value="$FORM{'s'}">
+<input type="hidden" name="h" value="$thread">
+<input type="hidden" name="f" value="$postid:$wdate">
+<input type="hidden" name="ac" value="$FORM{'ac'}">
+<hr>
+</form>
+</body></html>
+EOF
+	
+	exit;
+}
+
+
+###############################################################################
+#  パスワードチェック
+###############################################################################
+
+sub chkpasswd {#
+
+	my $slen;
+
+	if ( ($adminpost[0] =~ /^\$1\$/) || ($adminpost[1] =~ /^\$1\$/) ||  ($adminpost[2] =~ /^\$1\$/ ) ) {
+		$slen = 5;
+	} else {
+		$slen = 2;
+	}
+	
+	if ( crypt ( $FORM{'u'}, substr ( $adminpost[0], 0, $slen ) ) eq $adminpost[0] ) {
+		return 1;
+	} elsif ( crypt ( $FORM{'u'}, substr ( $adminpost[1], 0, $slen ) ) eq $adminpost[1] ) {
+		return 2;
+	} elsif ( crypt ( $FORM{'u'}, substr ( $adminpost[2], 0, $slen ) ) eq $adminpost[2] ) {
+		return 3;
+	} else {
+		return 0;
+	}
+
+}#
+
+
+###############################################################################
+#  メッセージチェック
+###############################################################################
+
+sub chkmessage {
+	
+	my ( @hostbin, $admincheck, $adminfname );
+	
+	# アノニマイザー経由の投稿を許可／拒否する
+#	if ($anonymizer) {
+#		if ( ! ( $referer =~ /$cgiurl/i ) ) {#禁止
+#			&chkerror ( "投稿画面のＵＲＬが<br>$cgiurl<br>" .
+#			  '以外からの投稿はできません。',  3 );
+#		}
+#	} else {
+#		if ( $referer && ! ( $referer =~ /$cgiurl/i ) ) {#許可
+#		&chkerror ( "投稿画面のＵＲＬが<br>$cgiurl<br>" .
+#		  '以外からの投稿はできません。',  3 );
+#		}
+#	}
+
+	$i = 0;
+	foreach ( split ( /\r/, $FORM{'v'} ) ) {
+		if ( length ( $_ ) > $maxmsgcol ) {
+			$i++;
+		}
+	}
+	if ( $i != 0 ) { &chkerror ( '投稿内容の桁数が大きすぎます。', 10 ); }
+	
+	if ( ( $FORM{'v'} =~ tr/\r/\r/ ) > ( $maxmsgline - 1 ) ) {
+		&chkerror ( '投稿内容の行数が大きすぎます。', 11 );
+	}
+	
+	if ( length ( $FORM{'v'} ) > $maxmsgsize ) {
+		&chkerror ( '投稿内容が大きすぎます。', 12 );
+	}
+	
+	if ( $FORM{'pc'} ) {
+		@hostbin = split ( /\./, $ENV{'REMOTE_ADDR'} );
+		for ( $i = 0 ; $i < 4 ; $i++ ) {
+			$hostbin[$i] = vec ( pack ( 'C4', $hostbin[$i] ), 0, 8 );
+		}
+		$protect_c = $hostbin[0] ^ $hostbin[1] ^ $hostbin[2] ^ $hostbin[3];
+		$pcheck = ( $FORM{'pc'} - $protect_c ) / $protect_b - $protect_a;
+		&getnowdate ( $pcheck );
+		if ( ( $sec  < 0 ) || ( $sec  > 60 ) || 
+		  ( $min  < 0 ) || ( $min  > 60 ) ||
+		  ( $hour < 0 ) || ( $hour > 24 ) ) {
+			&chkerror ( '', 32 );
+		}
+		if ( ( $nowtime - $pcheck ) < $S_pstime ) {
+			&chkerror ( 'もう一度やり直して下さい。', 30 );
+		}
+		if ( ( $nowtime - $pcheck ) > $S_pltime ) {
+			&chkerror ( '', 31 );
+			if ( $FORM{'f'} ) {
+				&prtfollow ( 1 );
+			} else {
+				&prtmain ( $FORM{'t'}, $FORM{'v'}, $FORM{'l'} );
+			}
+			exit;
+		}
+	} else {
+		&chkerror ( 'フォームデータの一部に欠落があります。もう一度やり直して下さい。', 33 );
+	}
+	
+	if ( $FORM{'i'} =~ / /i ) {
+		$FORM{'i'} = '';
+	}
+	if ( $FORM{'i'} ) {
+		if ( ! ( $FORM{'i'} =~ /.*\@.*\..*/ ) ) {
+			&chkerror ( 'メールアドレスが正しく入力されていません。', 20 );
+		} elsif ( $FORM{'i'} =~ /,/ ) {
+			&chkerror ( 'メールアドレスは複数指定できません。', 21 );
+		}
+	}
+	
+	if ( !$FORM{'t'} ) {
+		$FORM{'t'} = $notitle;
+	}
+	
+	if ( !$FORM{'u'} ) {
+		if ( !$anonymous_post ) {
+			# 無記名投稿の禁止
+			&chkerror ( '投稿者名が正しく入力されていません。', 22 );
+		} else {
+			$FORM{'u'} = $anonymous_word;
+		}
+	} else {
+
+		if ( &chkpasswd ) {
+			if ( $FORM{'v'} =~ /^$adminkey/ ) {
+				require 'sub/bbsadmin.pl';
+				&adminmain;
+				exit;
+			} else {
+
+				if ( &chkpasswd eq 1) {
+					$FORM{'u'} = $adminname[0];
+					$FORM{'i'} = $adminmail[0];
+				} elsif ( &chkpasswd eq 2) {
+					$FORM{'u'} = $adminname[1];
+					$FORM{'i'} = $adminmail[1];
+				} elsif ( &chkpasswd eq 3) {
+					$FORM{'u'} = $adminname[2];
+					$FORM{'i'} = $adminmail[2];
+				}
+			}
+		} elsif ( $FORM{'u'} eq $adminpost[0] ) {
+			$FORM{'u'} = "$adminname[0]（ハカー）";
+		} elsif ( $FORM{'u'} eq $adminpost[1] ) {
+			$FORM{'u'} = "$adminname[1]（ハカー）";
+		} elsif ( $FORM{'u'} eq $adminpost[2] ) {
+			$FORM{'u'} = "$adminname[2]（ハカー）";
+		} else {
+		
+			foreach $hadminname (@adminname) {
+				$adminfname = quotemeta $hadminname;
+
+				if ( $FORM{'u'} =~ /$adminfname/i ) {
+					$admincheck = $FORM{'u'};
+					$admincheck =~ s/ //g;
+					$admincheck =~ s/　//g;
+					$admincheck =~ s/_//g;
+					if ( ( $admincheck eq $adminname[0] ) && ( $FORM{'i'} ) ) {
+						$FORM{'u'} =~ s/$adminfname/$adminname[0]（騙り）/;
+					}
+					if ( ( $admincheck eq $adminname[1] )  && ( $FORM{'i'} ) ){
+						$FORM{'u'} =~ s/$adminfname/$adminname[1]（騙り）/;
+					}
+					if ( ( $admincheck eq $adminname[2] )  && ( $FORM{'i'} ) ){
+						$FORM{'u'} =~ s/$adminfname/$adminname[2]（騙り）/;
+					}
+				}
+			}
+		}
+	}
+	
+	if ( $autolink ) {
+		$FORM{'v'} =~ s#((https?|ftp|gopher|telnet|whois|news)://(=[\x21-\xfc]+|[\x21-\x7e])+)#<a href="$1" target="link">$1</a>#ig;
+	}
+	
+	# URLを入れるフォームでjavascript:～潰し
+
+	#javascript:open('http://strange.kurumi.ne.jp/bbs.cgi');
+	#javascript:for(;;){window.open();}
+	#javascript:open('../diary/diary.html');
+
+	if ( $FORM{'l'} =~ /javascript/i ) {
+		$FORM{'l'} =~ s/:/：/gi;
+	}
+
+	if ( $FORM{'l'} =~ /\s+/ || !$FORM{'l'} ) {
+		$FORM{'l'} = '';
+	} else {
+		$FORM{'l'} =~ s/http:\/\/http:\/\//http:\/\//;
+		$FORM{'v'} .= "\r\r<a href=\"$FORM{'l'}\" target=\"link\">$FORM{'l'}</a>";
+	}
+	if ( $FORM{'f'} ) {
+		( $i, $j ) = split ( /:/, $FORM{'f'} );
+		$FORM{'v'} .= "\r\r<a href=\"m=f\&s=$i\&r=$j\">参考：$j</a>";
+	}
+
+	# date:2003/12/01
+	# 特殊な変換を行う(色付けとか)
+	$FORM{'v'} = &change_to_xxx($FORM{'v'});
+
+	# ＮＧネーム
+	if ($ngnameon) {
+		&ngnamepre;
+	}
+}
+
+
+###############################################################################
+#  メッセージチェックエラー処理
+###############################################################################
+
+sub chkerror {
+	
+	my $errstr = $_[0];
+	$posterr = $_[1];
+	
+	&prterror ( $errstr ) if ( $errstr );
+}
+
+
+###############################################################################
+#  メッセージ登録
+###############################################################################
+
+sub putmessage {
+	
+	my $oldlogext;
+	
+	open ( FLOG, "+<$logfilename" ) || &prterror ( 'メッセージ読み込みに失敗しました' );
+	eval 'flock ( FLOG, 2 )';
+	seek ( FLOG, 0, 0 );
+	@logdata = <FLOG>;
+	
+	$i = 0;
+	$posterr = 0;
+	while ( $logdata[$i] && !$posterr ) {
+		@items = split ( /\,/, $logdata[$i] );
+		$items[9] =~ s/\n$//;
+		$posterr = 1 if ( $i < $checkcount && $FORM{'v'} eq $items[9] );
+		$posterr = 2 if ( $FORM{'pc'} eq $items[2] );
+		$posterr = 2 if ( $host && ( $host eq $items[4] ) && ( $nowtime < ( $items[0] + $sptime ) ) );
+		$i++;
+	}
+	
+	if ( !$posterr ) {
+		
+		@items = split ( /\,/, $logdata[0] );
+		$newpostid = $items[1] + 1;
+# ここでデータを記録
+		$msgdata = "$nowtime,$newpostid,$FORM{'pc'},$FORM{'h'},$host,$agent,$FORM{'u'},$FORM{'i'},$FORM{'t'},$FORM{'v'}\n";
+		
+		@logdata = @logdata[0 .. $logsave - 2] if ( @logdata >= $logsave );
+		unshift ( @logdata, $msgdata );
+		
+		$oldstream = select ( FLOG );
+		$| = 1;
+		seek ( FLOG, 0, 0 );
+		truncate ( FLOG, 0 );
+		print FLOG @logdata;
+		eval 'flock ( FLOG, 8 )';
+		close ( FLOG );
+		select ( $oldstream );
+		
+		&getnowdate ( $nowtime );
+		
+		# 過去ログ出力
+		if ( $oldlogfiledir ) {
+			
+			if ( !$oldlogfmt ) {
+				$oldlogext = 'html';
+			} else {
+				$oldlogext = 'dat';
+			}
+			
+			if ( !$oldlogsavesw ) {
+				$oldlogfilename = sprintf ( "%s/%d%02d%02d.$oldlogext",
+				  $oldlogfiledir, $year, $mon, $mday );
+			} else {
+				$oldlogfilename = sprintf ( "%s%d%02d.$oldlogext",
+				  $oldlogfiledir, $year, $mon );
+			}
+			
+			open ( CLOG, ">>$oldlogfilename" ) || &prterror ( '過去ログ出力に失敗しました' );
+			eval 'flock ( CLOG, 2 )';
+			
+			$oldstream = select ( CLOG );
+			$| = 1;
+			
+			if ( !$oldlogfmt ) {
+				if ( -z CLOG ) {
+					print CLOG <<EOF;
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>$bbstitle</title>
+</head>
+<body bgcolor="#$bgc" text="#$textc" link="#$linkc" vlink="#$vlinkc" alink="#$alinkc">
+<hr>
+EOF
+				}
+				
+				&getmessage ( $msgdata );
+				
+				print CLOG &prtmessage ( 1, '' );
+				
+			} else {
+				print CLOG $msgdata;
+			}
+			
+			eval 'flock ( CLOG, 8 )';
+			close ( CLOG );
+			
+			select ( $oldstream );
+			
+			chmod 0400, $logfilename if ( ( -s $oldlogfilename ) > $maxoldlogsize );
+			
+			&getnowdate ( time - $difftime - $oldlogsaveday * 60 * 60 * 24 );
+			$oldlogfilename = sprintf (  "%s/%d%02d%02d.$oldlogext",
+			  $oldlogfiledir, $year, $mon, $mday );
+			unlink $oldlogfilename;
+			
+			&putcookie ( 0 ) if ( $cookie );
+		}
+		
+	} else {
+		eval 'flock ( FLOG, 8 )';
+		close ( FLOG );
+		
+		if ( $posterr == 2 ) {
+			&chkerror ( '', $posterr );
+			if ( $FORM{'f'} ) {
+				&prtfollow ( 1 );
+			} else {
+				&prtmain ( $FORM{'t'}, $FORM{'v'}, $FORM{'l'} );
+			}
+			exit;
+		}
+	}
+}
+
+
+###############################################################################
+#  Cookie取得
+###############################################################################
+
+sub getcookie {
+	
+	if ( $ENV{'HTTP_COOKIE'} ) {
+		$ENV{'HTTP_COOKIE'} =~ /^c\=u\=(.*)\&m\=(.*)&c\=(.*)$/;
+		$FORM{'u'} = $1 if ( $1 && !$FORM{'u'} );
+		$FORM{'i'} = $2 if ( $2 && !$FORM{'i'} );
+		$FORM{'c'} = $3 if ( ( length ( $3 ) == 3 ) || ( length ( $3 ) == 33 ) );
+		$FORM{'c'} =~ s/;$//;
+		$FORM{'u'} =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack ( "C", hex ( $1 ) )/eg;
+		$FORM{'i'} =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack ( "C", hex ( $1 ) )/eg;
+	}
+}
+
+
+###############################################################################
+#  Cookie送信
+###############################################################################
+
+sub putcookie {
+	
+	my ( $cuser, $cmail, @ctime, $cmday, $cmon, $cdate );
+	my $cexpdif = $_[0];
+	
+	$cuser = &escstring ( $FORM{'u'} );
+	$cmail = &escstring ( $FORM{'i'} );
+	
+	( @ctime ) = gmtime ( time + $S_cexp - $cexpdif );
+	$cmday = ( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' )[$ctime[6]];
+	$cmon = ( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' )[$ctime[4]];
+	$cdate = sprintf ( "%s, %02d\-%s\-%04d %02d:%02d:%02d GMT",
+	  $cmday, $ctime[3], $cmon, $ctime[5] + 1900, $ctime[2], $ctime[1], $ctime[0] );
+	print "Set-Cookie: c=u=$cuser&m=$cmail&c=$FORM{'c'}; expires=$cdate; path=/\n";
+}
+
+
+###############################################################################
+#  プロテクトコード生成
+###############################################################################
+
+sub pcode {
+	
+	my ( @hostbin, @pkey, @pkeystr, @apkey );
+	srand ( time | $$ );
+	
+	#$nowtime = time - $difftime * 60 * 60;
+	@hostbin = split ( /\./, $ENV{'REMOTE_ADDR'} );
+	for ( $i = 0 ; $i < 4 ; $i++ ) {
+		$hostbin[$i] = vec ( pack ( 'C4', $hostbin[$i] ), 0, 8 );
+	}
+	$protect_c = $hostbin[0] ^ $hostbin[1] ^ $hostbin[2] ^ $hostbin[3];
+	$pkey[0] = ( $nowtime + $protect_a ) * $protect_b + $protect_c;
+	$pkey[1] = $pkey[0] - int ( rand ( 64 ) );
+	$pkey[2] = $pkey[1] + int ( rand ( 128 ) );
+	
+	$pkeystr[0] = "\n  <input type=\"hidden\" name=\"pc\" value=\"$pkey[0]\">\n";
+	$pkeystr[1] = "  <!--\n  <input type=\"hidden\" name=\"pc\" value=\"$pkey[1]\">\n  -->";
+	$pkeystr[2] = "  <!--\n  <input type=\"hidden\" name=\"pc\" value=\"$pkey[2]\">\n  -->";
+	
+	push ( @apkey, splice ( @pkeystr, rand ( @pkeystr ), 1 ) ) while @pkeystr;
+	@pkeystr = @apkey;
+	
+	return "$pkeystr[0]$pkeystr[1]$pkeystr[2]";
+}
+
+
+###############################################################################
+#  フォーム部分表示
+###############################################################################
+
+sub prtform {
+	
+	my $dtitle = $_[0];
+	my $dmsg = $_[1];
+	my $dlink = $_[2];
+	my ( $bbslink, $gzipchk, $counter, $mbrcount );
+	
+	# プロテクトコード生成
+	my $ptext = &pcode;
+	
+	# カウンタ
+	$counter = &counter;
+	$mbrcount = &mbrcount;
+	
+	if ( $gzip ) {
+		$gzipchk = qq#  　<font size="-1">gzip圧縮転送 <input type="checkbox" name="g" accesskey="G" value="checked" $S_gzchk[$gzipu]></font>#;
+	} else {
+		$gzipchk = '';
+	}
+	
+	# ログ読み専用画面、下のリロードの不具合を修正
+	if ( $FORM{'m'} eq 'o' || $FORM{'m'} eq 'op' || $FORM{'rm'} eq 'o' ) {
+		
+		# 投稿専用フォーム
+		print <<EOF;
+<form method="$formmethod" action="$cgiurl">
+<input type="hidden" name="m" value="p">
+<input type="hidden" name="d" value="0">
+<input type="submit" name="post" value="投" accesskey="9"><br>
+<textarea rows="4" cols="14" name="v">$dmsg</textarea><br>
+名<input size="20" type="text" name="u" size="8" maxlength="30" value="$FORM{'u'}"><br>
+ﾒｰﾙ<input size="30" type="text" name="i" size="10" maxlength="255" value="$FORM{'i'}"><br>
+題<input size="30" type="text" name="t" size="9" maxlength="40" value="$dtitle">
+  $ptext
+<input type="hidden" name="k" value="あ">
+<input type="hidden" name="c" value="$FORM{'c'}">
+<input type="hidden" name="p" value="$toppostid">
+<input type="hidden" name="a" value="checked">
+<input type="hidden" name="noth" value="$FORM{'noth'}">
+</form>
+EOF
+		
+	} else {
+		
+		# 標準投稿フォーム
+		print <<EOF;
+<form method="$formmethod" action="$cgiurl">
+<input type="hidden" name="m" value="p">
+EOF
+		if ( $FORM{'m'} eq 'f' && !$FORM{'f'} ) {
+		print <<EOF;
+<input type="submit" name="post" value="投" accesskey="9"><br>
+<textarea rows="4" cols="14" name="v">$dmsg</textarea><br>
+名<input size="20" type="text" name="u" size="8" maxlength="30" value="$FORM{'u'}"><br>
+ﾒｰﾙ<input size="30" type="text" name="i" size="10" maxlength="255" value="$FORM{'i'}"><br>
+題<input size="30" type="text" name="t" size="9" maxlength="40" value="$dtitle">
+  $ptext
+<input type="hidden" name="d" value="0">
+EOF
+		}
+		print <<EOF;
+<input type="hidden" name="k" value="あ">
+<input type="hidden" name="c" value="$FORM{'c'}">
+EOF
+		
+		if ( $FORM{'m'} ne 'f' && !$FORM{'f'} ) {
+			print <<EOF;
+<input type="submit" name="post" value="R" accesskey="7">
+<a href="$cgiurl?d=0&p=$toppostid" accesskey="0">0件</a>
+<input size="2" type="text" name="d" value="$FORM{'d'}">
+$mbrcount
+<input type="hidden" name="p" value="$toppostid">
+<input type="hidden" name="noth" value="$FORM{'noth'}">
+</form>
+EOF
+		}
+	}
+}
+
+
+###############################################################################
+#  画面表示
+###############################################################################
+
+sub prtmain {
+	
+	my ( $prtmessage, $dispcount, @pkeystr, $msgmore, $msgnext, $cntnext );
+	my $dtitle = $_[0];
+	my $dmsg = $_[1];
+	my $dlink = $_[2];
+	
+	&loadmessage;
+	
+	$prtmessage = '';
+	
+	# 最新のPOSTIDを取得（０件リロード用）
+	$logdata[0] =~ /^.*,(.*),.*,.*,.*,.*,.*,.*,.*,.*/;
+	$toppostid = $1;
+	
+	# メッセージ表示件数設定
+#	if ( $FORM{'d'} == 0 ) {
+	if ( ( $FORM{'d'} == 0 ) || ( $FORM{'mload'} ) ) {
+		$dispcount = $toppostid - $FORM{'p'};
+		$cntnext = $msgdisp;
+	} else {
+		$dispcount = $FORM{'d'};
+		$cntnext = $FORM{'d'};
+	}
+	
+	# 表示メッセージ作成
+	$msgtop = $bmsg + $dispcount;
+	$msgtop = @logdata if ( $msgtop > @logdata );
+	$j = 0;
+	
+	if ( $FORM{'d'} == 0 && $reltype ) {
+		for ( $i = $msgtop - 1 ; $i >= $bmsg ; $i-- ) {
+			&getmessage ( $logdata[$i] );
+			$prtmessage .= &prtmessage ( 0, '' );
+			$j++
+		}
+	} else {
+		for ( $i = $bmsg ; $i < $msgtop ; $i++ ) {
+			&getmessage ( $logdata[$i] );
+			$prtmessage .= &prtmessage ( 0, '' );
+			$j++
+		}
+	}
+	$bmsg++;
+	if ( $j > 0 ) {
+		$msgmore = "$bmsg～$msgtop件"
+	} else {
+		$msgmore = '旦~';
+	}
+	if ( $logdata[$msgtop] && $j > 0 ) {
+
+	# ログ読み専用画面、下のリロードの不具合を修正
+	if ( $FORM{'m'} eq 'o' || $FORM{'m'} eq 'op' || $FORM{'rm'} eq 'o' ) {
+		$romnext='        <input type="hidden" name="rm" value="o">';
+		$romreload='        <input type="hidden" name="m" value="o">';
+	}
+
+		$msgnext = <<EOF;
+<form method="$formmethod" action="$cgiurl">$romnext
+<input type="hidden" name="m" value="n">
+<input type="hidden" name="b" value="$msgtop">
+<input type="hidden" name="u" value="$FORM{'u'}">
+<input type="hidden" name="d" value="$cntnext">
+<input type="hidden" name="c" value="$FORM{'c'}">
+<input type="hidden" name="noth" value="$FORM{'noth'}">
+<input type="submit" name="pnext" value="＞" accesskey="5">
+</form>
+<a href="#top">上</a> <a name="bottom">
+EOF
+	} else {
+#		$msgmore .= 'これ以下の記事はありません。少なくともこの世界を利用して手に入れようという気はありません。';
+		$msgnext = '';
+	}
+	
+	# メイン出力
+	&prthtmlhead ( "$FORM{'newtitle'}" );
+
+	# ログ読み画面で、新規投稿へのをリンクを追加
+
+	if ( $FORM{'m'} eq 'o' || $FORM{'m'} eq 'op' ) {
+
+		# ログ読み専用フォーム
+		#$bbslink = qq#<a href="$cgiurl?c=$FORM{'c'}">戻</a>#;
+#猫追加20040123
+		$bbslink = qq#<a href="$cgiurl?c=$FORM{'c'}">戻</a> <a href="\.\.\/i\.html">写</a>#;
+#ここまで
+	print <<EOF;
+$bbslink
+EOF
+	
+	&prtform ( $dtitle, $dmsg, $dlink );
+	
+	print <<EOF;
+</body></html>
+EOF
+	} else {
+		# 標準投稿フォーム
+		#$bbslink = qq#<a href="i\.cgi?m=o" accesskey="9">投</a>#;
+#猫追加20040123
+		$bbslink = qq#<a href="i\.cgi?m=o" accesskey="9">投</a> <a href="\.\.\/i\.html">写</a>#;
+#ここまで
+
+	print <<EOF;
+$bbslink
+EOF
+	
+	
+	&prtform ( $dtitle, $dmsg, $dlink );
+	
+	print <<EOF;
+<br>
+$prtmessage
+<P>$msgmore</P>
+$msgnext
+</body></html>
+EOF
+	
+	}
+
+}
+
+
+###############################################################################
+#  個人用設定反映
+###############################################################################
+
+sub refcustom {
+	
+	if ( $FORM{'c'} ) {
+		if ( length ( $FORM{'c'} ) == 39  ) {
+			$FORM{'c'} =~ /^(\w\w\w\w\w\w)(\w\w\w\w\w\w)(\w\w\w\w\w\w)(\w\w\w\w\w\w)(\w\w\w\w\w\w)(\w\w\w\w\w\w)(\w)(\w)(\w)$/;
+			$CC{'text'} = $1;
+			$CC{'bg'} = $2;
+			$CC{'link'} = $3;
+			$CC{'vlink'} = $4;
+			$CC{'qmsgc'} = $5;
+			$CC{'subj'} = $6;
+			#$CC{'subj'} = $subjc;#$CC{'text'};
+			$i = hex ( $7 );
+			$j = hex ( $8 );	# 予備
+			$k = hex ( $9 );	# 予備
+		} elsif ( length ( $FORM{'c'} ) == 3  ) {
+			$FORM{'c'} =~ /^(\w)(\w)(\w)$/;
+			$CC{'text'} = $textc;
+			$CC{'bg'} = $bgc;
+			$CC{'link'} = $linkc;
+			$CC{'vlink'} = $vlinkc;
+			$CC{'qmsgc'} = $qmsgc;
+			$CC{'subj'} = $subjc;
+			$i = hex ( $1 );
+			$j = hex ( $2 );	# 予備
+			$k = hex ( $3 );	# 予備
+		}
+		$gzipu = int ( $i / 8 );
+		$reltype = int ( $i % 8 / 4 );
+		$followwin = int ( $i % 8 % 4 / 2 );
+		$autolink = ( $i % 8 % 4 % 2 );
+		if ( $FORM{'m'} eq 'p' || $FORM{'m'} eq 'op' ) {
+			if ( $FORM{'a'} ) { $autolink = 1; } else { $autolink = 0; }
+			if ( $FORM{'g'} ) { $gzipu = 1; } else { $gzipu = 0; }
+		}
+	} else {
+		$CC{'text'} = $textc;
+		$CC{'bg'} = $bgc;
+		$CC{'link'} = $linkc;
+		$CC{'vlink'} = $vlinkc;
+		$CC{'qmsgc'} = $qmsgc;
+		$CC{'subj'} = $subjc;
+		$gzipu = $FORM{'g'} if ( $FORM{'m'} eq 'g' );
+	}
+	$i = sprintf ( "%x", $autolink + $followwin * 2 + $reltype * 4 + $gzipu * 8 );
+	$j = 0;
+	$k = 1;
+	
+	if ( 
+	  ( $CC{'text'} eq $textc ) &&
+	  ( $CC{'bg'} eq $bgc ) &&
+	  ( $CC{'link'} eq $linkc ) &&
+	  ( $CC{'vlink'} eq $vlinkc ) &&
+	  ( $CC{'qmsgc'} eq $qmsgc ) &&
+	  ( $CC{'subj'} eq $subjc ) ) {
+		$FORM{'c'} = "$i$j$k";
+	} else {
+		$FORM{'c'} = "$CC{'text'}$CC{'bg'}$CC{'link'}$CC{'vlink'}$CC{'qmsgc'}$CC{'subj'}$i$j$k";
+	}
+}
+
+
+###############################################################################
+#  メイン
+###############################################################################
+
+
+&getformdata;
+&jconv;
+&getenv;
+&getcookie if ( $cookie );
+$nowtime = time - $difftime * 60 * 60;
+
+if ( $FORM{'m'} eq 'c' ) {
+	require './sub/bbscust.pl';
+	&setcustom;
+	exit;
+}
+
+# 個人用設定反映
+&refcustom;
+$body = qq(<body bgcolor="#$CC{'bg'}" text="#$CC{'text'}" link="#$CC{'link'}">);
+
+# Getlog
+if ( $FORM{'m'} eq 'g' ) {
+	require './sub/bbslog.pl';
+	&getlog;
+	exit;
+}
+
+# トピック一覧
+if ( $FORM{'m'} eq 'l' ) {
+	require './sub/bbstopic.pl';
+	&lsttopic;
+	exit;
+}
+
+# 管理モード
+if ( $FORM{'ad'} ) {
+	require './sub/bbsadmin.pl';
+	&adminmain;
+	exit;
+}
+
+if ( ( !$adminpost[0] ) || ( !$adminpost[1] ) || ( !$adminpost[2] ) ) {
+	require './sub/bbsadmin.pl';
+	&setpass;
+	exit;
+}
+
+# 個人用設定
+if ( $FORM{'setup'} ) {
+	require './sub/bbscust.pl';
+	&prtcustom;
+	exit;
+}
+
+# 表示件数設定
+
+     if ($FORM{'zload'}) {
+		
+             $FORM{'d'} = 0;
+     } elsif ( $FORM{'d'} ne '' ) {
+             if ( $FORM{'d'} > $logsave ) {
+                     $FORM{'d'} = $logsave;
+             }
+     } else {
+             $FORM{'d'} = $msgdisp;
+     }
+
+if ( $FORM{'m'} eq 'p' && $FORM{'v'} && !$FORM{'reload'} ) {
+
+if ( ($anonyproxylimit) && ($anonyproxyflg) ) {
+&prterror ( '現在、匿名proxy変数を出力するホストにはアクセス制限をしています。' );
+}
+
+	$postid = 0;
+	$posterr = 0;
+	if ( $ENV{'CONTENT_TYPE'} eq 'application/x-www-form-urlencoded' ) {
+		&chkmessage;
+		&putmessage;
+	} else {
+		$posterr = 255;
+	}
+#	if ( $FORM{'ac'} || ( $FORM{'f'} && !$followwin ) ) {
+#		&prthtmlhead ( "$FORM{'newtitle'} 書き込み完了" );
+#		print <<EOF;
+#<H1>書き込み完了</H1>
+#</body>
+#</html>
+#EOF
+#		exit;
+#	}
+	undef $FORM{'f'};
+} elsif ( $FORM{'m'} eq 'f' ) {
+	&prtfollow ( 0 );
+} elsif ( $FORM{'m'} eq 's' || $FORM{'m'} eq 't' ) {
+	require './sub/bbssrc.pl';
+	&srcmessage;
+} else {
+	if ( $FORM{'m'} eq 'n' ) {
+		$bmsg = $FORM{'b'};
+	} else {
+		$bmsg = 0;
+	}
+}
+
+&prtmain ( '', '', '' );
+
+exit;
+
+
+__END__

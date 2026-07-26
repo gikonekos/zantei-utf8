@@ -1,0 +1,55 @@
+/*
+ *  STRANGE UPLOADERのスタイルシート
+ *
+ */
+
+/*  テキスト・背景・リンク  */
+body {
+	background-color: #004040;
+	color: #FFFFFF;
+}
+a         { text-decoration: none; }
+a:link    { color: #EEFFEE; }
+a:visited { color: #DDDDDD; }
+a:active  { color: #FF0000; }
+a:hover   { color: #FFFFFF; background-color: #508080; }
+
+/*  セレクトフォーム  */
+select	{
+	background-color: #007F7F;
+	color: #FFFFFF;
+}
+
+/*  フォームのボタン  */
+.button	{
+	background-color: #007F7F;
+	color: #FFFFFF;
+	border-color: #FFFFFF;
+}
+
+/*  上部のタイトル帯  */
+table.obi {
+	background-color: #007F7F;
+}
+
+/*  ファイルリスト  */
+table.list {
+}
+
+/*  お絵描きアプレット  */
+applet {
+	border: 1pt solid black;
+}
+
+/*  お絵描きパレット  */
+table.palette {
+	background-color: #FFFFFF;
+	border: thin solid #088588;
+	color: #088588;
+}
+
+/*  お絵描きパレットのセレクトフォーム  */
+table.palette select {
+	background-color: #20A0A0;
+	color: #FFFFFF;
+}

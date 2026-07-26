@@ -1,0 +1,35 @@
+#! /usr/local/bin/perl
+if ( $FORM{'nazo'} eq '666' ) {
+	print <<EOF;
+EOF
+
+#<DIV ALIGN="CENTER">
+#<table>
+#<tr><td>
+#<a href="http://aff.shinobi.jp/v/?v=m8648p11177e43s27h81">モバイルでtoto？<br>お小遣い稼ぎ！</a>
+#</td><td>
+#<a href="http://aff.shinobi.jp/v/?v=m8648p11177e47s30h94">☆無料ｹﾞｰﾑで☆<br>┗現金ｻﾞｸｻﾞｸ┛</a>
+#</td><td>
+#<a href="http://aff.shinobi.jp/v/?v=m8648p11177e35s26h50">洋楽♪取り放題♪<br>(* ^ーﾟ)＜♪GOGO<br></a>
+#</td><td>
+#<a href="http://aff.shinobi.jp/v/?v=m8648p11177e28s20h42">ポイントを貯めて<br>☆景品ＧＥＴ！☆<br></a>
+#</td></tr></table>
+#<table><tr><td>
+#<a href="http://aff.shinobi.jp/v/?v=m8648p11177e76s51h221"><img src=http://aff.shinobi.jp/spo/images/51/dn234_60.gif width=234 height=60 border=0></a>
+#<iframe scrolling="no" frameborder=0 width=468 height=68 src="http://rcm-jp.amazon.co.jp/e/cm?t=gikoneko00-22&p=13&o=9&l=ez&f=ifr">
+#</td><td>
+#<table border="0" cellpadding="0" cellspacing="0" width="468" height="60"><tr><td> <MAP NAME="boxmap13"><AREA SHAPE="RECT" COORDS="73,45,196,60" HREF="http://rcm-jp.amazon.co.jp/e/cm/privacy-policy.html?o=9" alt="プライバシー ポリシー"><AREA COORDS="0,0,10000,10000" HREF="http://www.amazon.co.jp/exec/obidos/redirect?tag=gikoneko00-22&path=tg/browse/-/489986"></MAP><img src="http://rcm-images.amazon.com/images/G/09/extranet/associates/amzn_recommends/multiproducts-banner-468x60.gif" width="468" height="60" border="0" usemap="#boxmap13"> </td></tr></table> </iframe>
+#</td></tr></table>
+#<script type="text/javascript"><!--
+#  amazon_ad_tag = "gikoneko00-22";  amazon_ad_width = "600";  amazon_ad_height = "520"; amazon_color_border = "800000"; amazon_color_background = "000000";  amazon_color_text = "FF0000";  amazon_color_link = "00FF00";  amazon_color_price = "FF6666";  amazon_ad_logo = "hide";//--></script>
+#<script type="text/javascript" src="http://www.assoc-amazon.jp/s/ads.js"></script>
+#<P align="center">
+#↑↑↑↑↑↑ＵＺＥＥバナー↑↑↑↑↑↑
+#</p>
+#<img src="/img/kushibenkei2.jpg" alt="ワンダーぎゃははは・作">
+#</div>
+#EOF
+
+}
+
+1;

@@ -1,0 +1,674 @@
+#! /usr/local/bin/perl
+
+# bbs.cgiのリンク欄です
+
+# 更新履歴
+
+# 猫・リンク集化・なぞひなた追加(20070216)
+# 猫・愛の劇場 pushd 暫up リンク更新(20070215)
+# 猫・特・Wikipedia擬古猫追加(20070214)
+# 猫・イケメン追加(20070214)
+# 猫・暫定大賞2006追加(20061110)
+# 猫・アニオタ/teiou追加(20060927)
+# 猫・＠ふぁ追加・リンク行整理(20060926)
+# 猫・リンク行整理(20060722)
+# 猫・＠ふぁ更新(20060708)
+# 猫・MSNClone追加(20060629)
+# 猫・宅ファイル便追加(20060629)
+# 猫・島修正(20060628)
+# 猫・GAC追加(20060627)
+# 猫・Ｔシャツ屋追加(20060606)
+# 猫・ＲＭＴの教科書追加(20060127)
+# 猫・暫wiki更新(20060111)
+# 猫・あけましておめでとうございます・揺れた！追加(20060103)
+
+# 猫・qwerty修正・コンビニ追加(20051223)
+# 猫・萌犬追加(20051219)Thanksひろゆき氏！
+# 猫・あまがえる、暫暫退退追加(20051126)
+# 猫・akamedia、萌絵ちゃん追加(20051123)
+# 猫・慣用句追加(20051121)
+# 猫・qwerty・苦情追加(20051118)
+# 猫・リンク欄を整理(20051117)
+# 猫・萌えネコ写真館更新(20051031)Thanksひろゆき氏！
+# 猫・メイソ更新(20050917)
+# 猫・串弁慶＠裏暫定,２追加(20050901)
+# 猫・はじなぞ追加(20050809)
+# 猫・過去ログを変更(20050722)
+# 猫・リンク整理(20050315)
+# 猫・nAMAZON追加(20050118)
+# 猫・暫定ゲーム変更(20050108)
+# 猫・あけましておめでとうございます(20050101)
+# 猫・中の人変更(20041216)
+# 猫・色々問題もあるかとおもうけど２典plus追加(20041216)
+# 猫・詩 追加(20041216) がんばれダーザイン
+
+# 猫・えいえんなんてなかった追加(20041215)
+# 猫・モエドール追加(;´Д`) http://www.moedoll.com/(20041214)
+# 猫・猫zon追加(20041214)
+# 猫・日記ちょう別ｱｶｳﾝﾄ追加(20041209)
+# 猫・まな板・太郎削除/芋up追加(20040710)
+# 猫・infoseekのgoogle偽装refrer(20040628)http://hail2u.net/blog/internet/avoid_infoseek_403_forbidden.html
+# 猫・太郎(20040612)
+# 猫・遺産変更(20040611)
+# 猫・暫定あぷろだ(20040521)
+# 猫・遺産変更(20040520)
+# 猫・なぞもーど追加(20040516)
+# 猫・色投票(20040509)
+# 猫・次郎変更(20040501)
+# 猫・次郎変更(20040427)
+# 猫・遺産変更(20040427)
+# 猫・某S追加(20040422)
+# 猫・まな板追加(20040422)
+# 猫・ﾔﾌｰＴＶ追加(20040416)
+# 猫・広島次郎追加(20040413)
+# 猫・メモちょう変更(20040407)
+# 猫・なぞﾘﾐｸｽ追加(30040406)
+# 猫・広島太郎削除(20040405)
+# 猫・過去ログ移転(20040401)
+# 猫・おろないん追加(20040331)
+# 猫・暫定本店/メモちょう/しば日記/ 鮪追加(20040329)
+# 猫・ほしのるり変更私怨追加(20040323)
+# 猫・ﾘﾝｸ欄弄る(20040322)
+# 猫・広島太郎追加(20040302)
+# 猫・色々削除/九龍/9ravens追加(20040218)
+
+# 猫・たいやき追加(20040202)
+# 猫・写メール追加(20040122)
+# 猫・あめぞう2000追加(20040104)
+
+# 猫・あけましておめでとうございます本年もよろしく(20040101)
+
+# 猫・ﾅｯｼライブ追加(限定20031231)
+# 猫・たまご追加(20031226)
+# 猫・ねぎみそ追加(20031224)
+# 猫・ｱﾆｵﾀﾆｭｰｽ追加(20031224)
+# 下衆ナッツ・暫定大賞２００３(20031224)
+# 猫・srangewiki追加(20031218)
+# 猫・広島太郎追加(20031214)
+# 猫・ＩＴ用語辞典追加(20031214)
+# 猫・おにく追加 教削除(20031208)
+# 猫・nelli追加LOG1,2 教削除(20031207)
+# 猫・ウイキペディア追加(20031206)
+# 猫・ログ追加(20031205)
+# 猫・ログ追加(20031204)
+# 　[fix]・なぞ＆暫定相互移行(2003/12/04)
+# 猫・カラーチェッカー組み込み(2003/12/04)
+# 猫・文字絵変換追加(2003/12/3)
+# 猫・strangeworld.jp 追加(2003/12/02)
+# 猫・なぞたいやき復活 なぞ2003追加 (2003/11/30)
+# 猫・暫定カラーチェッカー追加(2003/11/30)
+# 下衆ナッツ&猫・暫定オークション開始(2003/11/27)
+# 猫・にゃす記念館追加(2003/11/27)
+# 猫・ｼｺﾞﾁｭｳ.org追加(2003/11/24)
+# 猫・文字絵追加(2003/11/23)
+# 猫・もも本店追加(2003/11/19)
+# 猫・くさいにせもの追加(2003/11/19)
+# 猫・ケットコム追加(2003/11/14)
+# 猫・猫追加(2003/11/13)
+# 下衆ナッツ・Top,Link追加(2003/11/12)
+# 猫・テスト掲示板開始／IIの機種依存文字直し(2003/11/11)
+# 猫・ラジオ追加(2003/11/09)
+# 下衆ナッツ・Dual追加(2003/11/09)
+# 猫・ov,none 追加、コメントアウト行削除(2003/11/05)
+# 猫・Ｚ追加(2003/11/05)
+# 猫・わげお追加(2003/11/04)
+# 猫・リンク大掃除(2003/11/03)
+
+# 下衆ナッツ・おかえりにゃんヽ(´ー｀)ﾉ(2003/11/08)
+# 猫・恥ずかしながら戻ってまいりました、皆さんにはご心配お掛けしました(2003/11/05)
+
+# 猫・ocha追加(2002/10/29)
+# 猫・たま弐再修正(2002/10/29)
+# 下衆ナッツ・あぷ追加(2002/10/28)
+# 下衆ナッツ・たま弐修正(2002/10/21)
+# 猫・裏みらい追加(2002/10/05)
+# 猫・SalonWeb暫定版追加（わらい (2002/10/02)
+# 猫・適当あぷろだ追加(2002/09/10)
+# 猫・ｹﾞｯﾁｭ追加(2002/09/07)
+# 猫・ＩＰ記録中表示(2002/09/04)
+# 猫・なぞ仕事中毒追加(2002/09/02)
+# 下衆ナッツ・666追加(2002/09/02)
+# 猫・絵削除(2002/09/01)
+# 下衆ナッツ・WOS追加(2002/08/31)
+# 下衆ナッツ・たま弐修正(2002/08/28)
+# 猫・狂復活/ NGと博ｺﾒﾝﾄｱｳﾄ(2002/08/25)
+# 下衆ナッツ・な暫復活(2002/08/25)
+# 猫・ﾏﾝｶﾞ削除/な暫ｺﾒﾝﾄｱｳﾄ(2002/08/23)
+# 猫・気狂い追加/ｺﾒﾝﾄｱｳﾄ(2002/08/23)
+# 猫・暫スト「ト」変更(2002/08/22)
+# 猫・擬古猫に言葉を教える、追加(2002/08/17)
+# 猫・rhizome追加(2002/08/13)
+
+# 下衆ナッツ・呂布修正(2002/08/06)
+# 下衆ナッツ・地震追加(2002/08/05)
+# 下衆ナッツ・＠のぞみ追加(2002/08/05)
+# 猫・すわりんく、ＬＷ、すみそにあん博物館変更(2002/06/29)
+# 宇多田レイパー・スクリプト全面入れ替え。config0.plは廃止しました(2002/06/19)
+# 猫・ＮＧが４０４なので<s>を…(2002/06/18)
+# ？・たまご追加(2002/06/18)←宇多田レイパーでした
+# 下衆ナッツ・暫定絵描き板(暫定色時代)追加(2002/6/16)
+# 猫・絵描きωまた削除つかめんどくせぇ(2002/06/09)
+# 猫・さくら漫才追加(2002/06/08)
+# 猫・絵描きω復活(2002/06/06)
+# 宇多田レイパー・あぷろだのURL変更。(2002/06/01)
+# 宇多田レイパー・倉庫のURLを変更。最近多忙。(2002/06/01)
+# 猫・酒、スカをコメントアウト(2002/05/28)
+# 宇多田レイパー・暫定あぷろだのディレクトリ変更。(2002/05/11)
+# 猫・餃子の王将を追加(2002/05/11)
+# 宇多田レイパー・暫定ゲームを追加。(2002/05/10)
+# 宇多田レイパー・過去ログ倉庫を追加。(2002/05/07)
+# （卿のとこのリンクを一時コメントアウト）(2002/05/04？) ｽﾏﾇ 猫
+# 宇多田レイパー・新しい暫定あぷろだ追加、古いのは「旧」(2002/04/19)
+# 下衆ナッツ・スカトロ和尚追加(2002/3/24)
+# 下衆ナッツ・あやしいわーるど＠玩具系追加(2002/3/6)
+# 下衆ナッツ・あやしいわーるど＠ももこ追加 (2002/3/6)
+# 下衆ナッツ・検索を削除(2002/3/4)
+# 下衆ナッツ・イケメンたちの歓談サロン＠ふぁっしょん掲示板追加(2002/3/4)
+# 下衆ナッツ・ほしのるり追加(2002/2/18)
+# 下衆ナッツ・串弁慶＠酒？追加(2002/2/18)
+# 下衆ナッツ・リンクの順番を見直し(2002/2/18)
+# 下衆ナッツ・転載退避を修正＠つか猫は養生しなきゃ駄目でしょ(;´Д`)(2002/2/13)
+# 猫・グラフ追加(2002/02/13)
+# レイパー・メイソ追加(2002/02/12)
+# 猫・iRC追加(2002/02/12)
+# 猫・なぞ純情派追加(2002/02/10)
+# 下衆ナッツ・暫定ストリート２追加(2002/2/05)
+# 下衆ナッツ・暫定ストリート観光案内(ﾚｲﾌﾟさんのとこ(^^;))追加(2002/2/05)
+# 猫・暫定ストリート(ZS)追加(2002/1/31)
+# 猫・絵描きＱ・絵描きω追加(2002/01/29)
+
+#/ <A HREF="http://ekaki00.hypermart.net/cgi-bin/oekaki/oekaki.cgi">Ｑ</A>
+
+# 猫・転載退避・呂府追加(2002/01/26)
+
+# 宇多田レイパー・投票欄がだぶってるので消しました(2002/01/23)
+
+# 猫・アホの子、あぷ事務所ほか色々追加(2002/01/23)
+
+# 猫・絵・番組追加(2002/01/21)
+
+
+
+
+
+sub linklineorg {
+
+
+
+	# リンク行にAタグにtarget指定をつける
+
+	if ( $FORM{'target_blank'} ) {
+
+		$targetwindow = 'target="_blank"';
+
+	} elsif ( $FORM{'targetlink'} ) {
+
+		$targetwindow = 'target="link"';
+
+	}
+
+
+
+	# 掲示板タイトル
+
+	if ( ( $FORM{'newtitle'} ) eq $bbstitle ) {
+
+		$addnbt2 = '';
+
+	} else {
+
+		$addnbt2 = "&newtitle=$FORM{'newtitle'}";
+
+	}
+
+	# 別掲示板の名前
+	my $alt_name = ($alturl =~ /nazo=777/) ? "なぞ" : "普通";
+
+# 書式
+
+# <A href="" $targetwindow></A>
+
+
+
+#print <<EOF;
+
+########zantai用リンク欄追加
+#if ( $adminname ne 'administrator' ) {
+#$zztt = <<EOF;
+#/ <A HREF="http://ge.st98.arena.ne.jp/cgi-bin/zt/bbs.cgi"$targetwindow>暫暫退退</a> 
+#EOF
+#
+#} else{
+#$zztt = <<EOF;
+#/ <A HREF="http://www.ge.st98.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>暫定本家</a> 
+#EOF
+#}
+
+		$tmpl_link = <<EOF;
+<HR>
+<H1>あやしいわーるど＠暫定　リンク集</H1>
+
+  <FONT size="-1">
+<B>暫定</B>
+| <A href="./bbs.cgi?m=g$addnbt2&c=$FORM{'c'}" $targetwindow accesskey="O">cgi 過去ﾛｸﾞ</A>
+/ <A href="http://strangedb.ath.cx/getlog/zantei/getlog.cgi"$targetwindow>＠検索</a> ㌧㌧
+| <A HREF="./test/bbs.cgi"$targetwindow>サポセン</a>
+| <A HREF="./">中</a><A HREF="./bbs.cgi?show_script=on"$targetwindow>の人</a>
+/ <A HREF="./bbs.cgi?nazo=1"$targetwindow>なぞモード</a>
+$zztt|暫定カラー <A HREF ="./zantei_color.cgi"><font color=crimson>●</font></a><A HREF ="./zantei_color2.cgi"><font color=orange>▲</font></a><A href="http://yasashiku.site.ne.jp/mojie/mojie.cgi"><font color=blue>■</font></a>
+<font color="$bgc">|</font><A HREF="$alturl"$targetwindow><font color="$bgc">$alt_name</font></A>
+<font color="$bgc">|</font><A HREF="http://www.ge.st98.arena.ne.jp/cgi-bin/bbs.cgi?nazo=666"><font color="$bgc">裏</font></A>
+<BR>
+<B>退避</B>
+| <A href="http://www.tcn.ne.jp/~holycure/taihi/bbs.cgi"$targetwindow>退避</A>
+| <A href="http://210.166.236.132/~s03219-1/refuge/zantei/?c=900&d=30"$targetwindow>？</A>
+| <A href="http://533.pr.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>(暫定退避)A</A>
+/ <A href="http://www.freak.ne.jp/~lunatica/cgi-bin/bbs.cgi"$targetwindow>F</A>
+| <A href="http://www.tcn.ne.jp/~holycure/game/bbs.cgi"$targetwindow>GR班</A>
+/ <A HREF="http://www.tcn.ne.jp/~holycure/wos/index.html"$targetwindow>WOS</A>
+/ <A HREF="http://www.tcn.ne.jp/~holycure/wos/bbs/bbs.cgi"$targetwindow>W-BBS</A>
+<BR>
+<B>あぷ</B>
+| <A href="http://www.ge.st98.arena.ne.jp/cgi-bin/up/upload.cgi"$targetwindow>暫up</A>
+/ <A href="http://www.manko.host.sk/uploda/"$targetwindow>PHP</A>
+/ <A href="http://yasashiku.site.ne.jp/up/upload.cgi"$targetwindow>あぷ</A>
+/ <A href="http://heretic.maid.to/cgi-bin/upload.cgi"$targetwindow>芋up</A>
+/ <A href="http://strange.s97.xrea.com/uploader-ng/"$targetwindow>ng</A>
+/ <A HREF="./ziten/ziten.cgi"$targetwindow>辞典</A>
+/ <A HREF="http://wiki.dot-strange.net/"$targetwindow>暫wiki</A>
+<BR>
+<B>なぞ</B>
+| <A HREF="http://nazoh.g.hatena.ne.jp/"$targetwindow>はてなぞ</a>
+| <A HREF="http://www.shigochu.org/cgi-bin/bbs.cgi?type=1"$targetwindow>ｼｺﾞ</a><A HREF="http://www.shigochu.org/"$targetwindow>ﾁｭｳ</a>
+/ <A HREF="http://www.strangeworld.cc/~gecko/bbs.cgi"$targetwindow>なr</a>
+/ <A HREF="http://hainuwele.s5.x-beat.com/cgi-bin/bbs.cgi"$targetwindow>太郎</a>
+/ <A HREF="http://jirou.s58.xrea.com/cgi-bin/bbs.cgi"$targetwindow>jiro</a>
+/ <A HREF="http://www.phezzan.net/nazo/cgi/bbs2.cgi""$targetwindow><s>はじなぞ</s></a>
+/ <A HREF="http://yotsuba.saiin.net/~testcard/swr/bbs.cgi"$targetwindow>鐵</a>
+/ <A HREF="http://mohican.g.hatena.ne.jp/""$targetwindow>Z666</a>
+
+/ <A HREF="http://strangeworld-hinata.sakura.tv/su/nazo.cgi">なぞひなた</a>
+
+
+<BR>
+<B>(あ)</B>
+| <s><A href="http://jo.st45.arena.ne.jp/cgi-bin/cortazar/bbs.cgi"$targetwindow>呂布 荊州</a></s>
+/ <A href="http://www.strangeworld.jp/cortazar/"$targetwindow>并州</a>
+|| <A href="../ii.html"$targetwindow>II</a>
+/ <A href="http://qwerty.on.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>qwerty</a>
+|<s> <A href="http://jo.st45.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>未来</a></s>
+/ <A HREF="http://strangeworld-hinata.sakura.tv/cgi-bin/bbs.cgi"$targetwindow>ひなた</A>
+| <A href="http://www.strangeworld.cx/cgi-bin/bbs/bbs.cgi"$targetwindow>島</a>
+| <A href="http://strangeworld-honten.com/cgi-bin/bbs.cgi"$targetwindow>本店</a>
+/ <A href="http://www.ajisai.net/honten/bbs.cgi"$targetwindow>もも</a>
+| <A HREF="http://ruri.s10.xrea.com/cgi-bin/bbs.cgi"$targetwindow>る</A><A HREF="http://sakurachan.in.arena.ne.jp/cgi-bin/mirai/bbs.cgi"$targetwindow>り</A>
+| <A HREF="http://www.geocities.co.jp/Stylish-Monotone/5795/"$targetwindow>ふ</A><A HREF="http://fashion.vis.ne.jp/cgi/talkbbs/bbs.cgi"$targetwindow>ぁ</A><A HREF="http://at-fashion.org/strangeworld/bbs.cgi"$targetwindow>っしょん</A>
+| <A HREF="http://salon.razor.jp/cgi/strangeworld/bbs.cgi"$targetwindow>イケメン</a>
+
+| <A HREF="http://meiso.s147.xrea.com/bbs.cgi"$targetwindow>ﾒｲｿ</A>
+| <A HREF="http://amari.ath.cx/bbs/bbs.cgi"$targetwindow>の</A>
+| <A href="http://strange.kurumi.ne.jp/bbs2.cgi"$targetwindow>はじあや</a>
+| <A href="http://strange.kurumi.ne.jp/bbs3.cgi"$targetwindow>☆</a>
+| <A href="http://itan.s6.xrea.com/strangeworld/bbs.cgi"$targetwindow>異端</a>
+||<A HREF="http://strange.onestop.net/"$targetwindow>ML</A>
+/ <A HREF="http://strange.toheart.to/"$targetwindow>し</A><A HREF="http://d.hatena.ne.jp/strange/"$targetwindow>ば</A> 
+/ <A HREF="http://strange.toheart.to/diary/diary.cgi"$targetwindow>揺</A><A HREF="http://www.kotono8.com/yureta/bbs.cgi"$targetwindow>れた</A>
+| <A HREF="http://www.phezzan.net/nelii/"$targetwindow>Ne</A>
+| <A HREF="http://www.strangeworld.jp/"$targetwindow>jp</a>
+<BR>
+<B>(リ)</B>
+| <A href="http://www.strangeworld.cx/cgi-bin/remix/bbs.cgi"$targetwindow>ﾘﾐ</a><A href="http://533.pr.arena.ne.jp/cgi-bin/yaremix.cgi"$targetwindow>状</a>
+| <A href="http://www.ge.st98.arena.ne.jp/twin.html"$targetwindow>Twin</A>
+/ <A href="http://www.ge.st98.arena.ne.jp/duet.html"$targetwindow>Dual</A>
+/ <A HREF="http://www.ge.st98.arena.ne.jp/2/2.html">2</A>
+| <A HREF="http://i-mirai.dyndns.org:8007/cgi-bin/bbs.cgi">iみら</A>
+| <A href="http://www.geocities.co.jp/Milkyway-Vega/4597/"$targetwindow>すわ</a>
+| <A HREF="http://2.csx.jp/~stwalker/"$targetwindow>ぁｗ</A>
+| <A HREF="http://www.geocities.co.jp/MusicStar-Vocal/7064/"$targetwindow>偽</A>
+| <A HREF="http://pushd.org/"$targetwindow>PushD</A>
+| <A HREF="http://www.kuron-zero.com/strangeworld/"$targetwindow>龍</a>
+| <A href="http://tokyo.cool.ne.jp/shiruku/"$targetwindow>見</a>
+| <A href="http://wa.strangeworld.jp/"$targetwindow>わ</a>
+| <A HREF="http://a.hatena.ne.jp/ku-haku/"$targetwindow>アンみら</a>
+<BR>
+<B>(他)</B>
+|<A HREF="http://negineesan.fc2web.com/"><font color=#40dd80>葱姉</font></A>
+| <A href="http://www.geocities.co.jp/Milkyway-Vega/4543/"$targetwindow>漫才</a>
+| <A href="http://www6.pekori.to/~eternal/not-strange/bbs.cgi"$targetwindow>ﾏｯﾀﾘ</a>
+| <A HREF="http://kanami.stratos.jp/nyasu.cgi"$targetwindow>(6_6)</a>
+| <A href="http://www.geocities.co.jp/AnimeComic/2888/"$targetwindow>(∂.∂)ﾉ</a>
+||<A HREF="http://news.scenecritique.com/"$targetwindow>iRC</A>
+/<A HREF="http://d.hatena.ne.jp/strangeclone/about"$targetwindow><font color=#dd4040>MSN</font></A>
+| <A HREF="http://www.9ravens.com/index2.html"$targetwindow>9</a><A HREF="http://www.9ravens.com/~insanity/bbs/"$targetwindow>r</a>
+| <A HREF="http://www.tcn.ne.jp/~holycure/natsubon/bbs.cgi"$targetwindow>ぎ</A>
+| <A HREF="http://sinreikun.hp.infoseek.co.jp/"$targetwindow>幹部</a>
+| <A HREF="http://daitokai.jp/home/honten/bbs.cgi"$targetwindow>日</a>
+| <A HREF="http://210.136.179.129/cgi-bin/bbs.cgi"$targetwindow>猫</a>
+| <A HREF="http://akademeia.info/"$targetwindow>赤</A>
+| <A HREF="http://pict.flog.jp/"$targetwindow>萌猫</A>
+| <A HREF="http://dog.piq.jp/"$targetwindow>萌犬</a>
+| <A HREF="http://convenies.fc2web.com/"$targetwindow>ｺﾝﾋﾞﾆ</a>
+| <A HREF="http://www.google.com/url?sa=D&q=http://oronain-h.hp.infoseek.co.jp/cgi-bin/heretic.cgi"$targetwindow>芋</A>
+| <A HREF="http://www.google.com/url?sa=D&q=http://none.at.infoseek.co.jp/"$targetwindow>none</a>
+|<A HREF="http://www.amazon.co.jp/exec/obidos/ASIN/4883122409/gikoneko00-22"><font color=#40dddd>えいえんなんて</A><A HREF="http://members.at.infoseek.co.jp/warentin/">なかった</font></A>
+|<A HREF="http://ugnews.net/"$targetwindow>UG</A>
+|<A HREF="http://aniota.jp/mt/"$targetwindow>ｱﾆｵﾀ</A>
+
+<BR>
+<B>(？)</B>
+| <A HREF="http://d.hatena.ne.jp/strange/"$targetwindow>しば</A>
+| <A HREF="http://d.hatena.ne.jp/tunachan/"$targetwindow>ありす</A>
+| <A HREF="http://d.hatena.ne.jp/ittanmomen/"$targetwindow>うんこ博士</A>
+| <A HREF="http://d.hatena.ne.jp/m4n4/"$targetwindow>まな</A>
+| <A HREF="http://d.hatena.ne.jp/moccori/"$targetwindow>moccori</A>
+| <A HREF="http://d.hatena.ne.jp/monica_rosu/"$targetwindow>キッコロ</A>
+| <A HREF="http://d.hatena.ne.jp/nyamaire/"$targetwindow>生入</A>
+| <A HREF="http://d.hatena.ne.jp/Poorman/"$targetwindow>Pooxman</A>
+| <A HREF="http://d.hatena.ne.jp/the28sudo/"$targetwindow>sudo</A>
+| <A HREF="http://d.hatena.ne.jp/ssi/"$targetwindow>真田</A>
+| <A HREF="http://d.hatena.ne.jp/Bisuke_tan/"$targetwindow>SH</A>
+| <A HREF="http://d.hatena.ne.jp/Bukimi/"$targetwindow>なむる</A>
+| <A HREF="http://d.hatena.ne.jp/Gesunuts/"$targetwindow>ﾅｯｼ先生</A>
+| <A HREF="http://d.hatena.ne.jp/musyoku/"$targetwindow>無職</A>
+| <A HREF="http://d.hatena.ne.jp/namaire/"$targetwindow>生入じゃない人</A>
+| <A HREF="http://d.hatena.ne.jp/orjp/"$targetwindow>ORJP</A>
+| <A HREF="http://d.hatena.ne.jp/posiko/"$targetwindow>名古屋君</A>
+| <A HREF="http://d.hatena.ne.jp/unkomori/"$targetwindow>はじるす</A>
+| <A HREF="http://d.hatena.ne.jp/www-db/"$targetwindow>ｽｰﾌｧﾐ</A>
+| <A HREF="http://d.hatena.ne.jp/aniota/"$targetwindow>ｱﾆｵﾀ</A>
+<BR>
+<B>(算)</B>
+| <A HREF="http://reproduction.kurumi.ne.jp/"$targetwindow>転載</A>
+| <A HREF="http://strangedb.ath.cx/"$targetwindow><font color=#dd4040>＠検索</font></a>
+| <A HREF="http://meiso.s147.xrea.com/mostviewed/mostviewed.php"$targetwindow>閲</a>
+| <A HREF="http://www.geocities.jp/strange_ov/"$targetwindow>sov</a>
+| <A HREF="http://strange.egoism.jp/sovs/"$targetwindow>sovs</a>
+| <A HREF="http://mojie.s1.xrea.com/cgi-bin/bbs.cgi"$targetwindow>ﾒｰﾃﾙ</a>
+| <A HREF="http://radio.dot-strange.net/status/"$targetwindow>radio</a>
+<BR>
+<B>(鮨)</B>
+| <A HREF="http://www.gac.jp/"$targetwindow>GAC</a>
+| <A HREF="http://ketto.com/"$targetwindow>ケ</a>
+| <A HREF="http://ja.wikipedia.org/wiki/%E7%89%B9%E5%88%A5:Randompage"$targetwindow>w</a>
+| <A HREF="http://e-words.jp/"$targetwindow>( ﾟ Д ﾟ )</a>
+| <A HREF="http://www.dap.ndl.go.jp/home/modules/top_expert/"$targetwindow>ｺｺﾛｱﾙﾄｲｲﾅ</a>
+| <A HREF="http://jbbs.livedoor.jp/game/3238/"$targetwindow>END</a>
+| <A HREF="http://www.geocities.jp/tomomi965/index2.html"$targetwindow>コージ苑</a>
+|| <A HREF="http://www.ohsho.co.jp/"$targetwindow>餃子の王将</a>
+| <A HREF="http://www.ge.st98.arena.ne.jp/gikoneko/nekozon.htm"$targetwindow>猫ｿﾞﾝ(`Д´)</a>
+/ <A HREF="http://533.pr.arena.ne.jp/namazon.html"$targetwindow>nAMAZON</a>
+/ <a href="http://aws.takawo.net/">AMAZON Ranking あまがえる</a>
+/ <A HREF="http://www.garageventure.jp/clubt/shop/S0000000097"$targetwindow>(o o)Ｔ</a>
+| <A HREF="http://www.h2.dion.ne.jp/%7Emagara/project.html"$targetwindow>ﾈｶﾞ</a><A HREF="http://www.amazon.co.jp/exec/obidos/ASIN/B000BSSC9M/gikoneko00-22/"$targetwindow>㌧ﾞ</a>
+| <A HREF="http://www.amazon.co.jp/exec/obidos/ASIN/4887187971/gikoneko00-22/"$targetwindow>萌絵ちゃん</a>
+<A HREF="http://www.sbcr.jp/netrunner/"$targetwindow><font color="$bgc">| ﾈﾄﾗﾝ</font></a>
+<BR>
+<B>注目</B>
+| <A HREF="http://www.tsundere.info/"$targetwindow><font color="#f0d0d0">ﾂﾝﾃﾞﾚ</b></i></font></A>
+| <A HREF="http://www.amazon.co.jp/exec/obidos/ASIN/4887188242/"$targetwindow><font color="#00d040">RMT</font></A>
+| <A HREF="http://www.shirtcity.jp/myshirtshop/merchandising/309872/t-shirtshop.html"$targetwindow>(o o)T</A>
+| <A HREF="http://zanteisutairu.spreadshirt.net/"$targetwindow>spreadshirt</A>
+| <A HREF="http://www.shirtcity.jp/myshirtshop/309872/t-shirtshop.html"$targetwindow><font color="#f0f040"></font>shirtcity</A>
+<HR>
+<B>生入</B><BR>
+<a target=_top href="http://strangedb.ath.cx/getlog/zanzan/getlog.cgi"$targetwindow>sfc</A>
+
+| <A href="http://533.pr.arena.ne.jp/link.html"$targetwindow>リンク集</A>
+| <a target=_top href="http://www.ge.st98.arena.ne.jp/cgi-bin/bbs.cgi?d=30&c=900&limitcfg=1"$targetwindow>本家暫定</A>
+| <a target=_top href="http://www.tcn.ne.jp/~holycure/taihi/bbs.cgi"$targetwindow>退避</A>
+/ <a target=_top href="http://210.166.236.132/~s03219-1/refuge/zantei/?c=900&d=30&limitcfg=1"$targetwindow>非</A>
+/ <a target=_top href="http://533.pr.arena.ne.jp/cgi-bin/bbs.cgi?c=900&d=30&limitcfg=1"$targetwindow>暫暫A</A>
+/ <a target=_top href="http://www.freak.ne.jp/~lunatica/cgi-bin/bbs.cgi?c=900&d=30&limitcfg=1"$targetwindow>F</A>
+
+| <a target=_top href="http://yasashiku.site.ne.jp/up/upload.cgi"$targetwindow>あぷ</A>
+/ <a target=_top href="http://0bbs.jp/zangzang/"$targetwindow>粗鉄</A>
+/ <a target=_top href="http://strange.s97.xrea.com/uploader-ng/"$targetwindow>ng</A>
+| なぞ <a target=_top href="http://hainuwele.s5.x-beat.com/cgi-bin/bbs.cgi"$targetwindow>太郎</A>
+/ <a target=_top HREF="http://www.shigochu.org/cgi-bin/bbs.cgi"$targetwindow>仕</a>
+| <a target=_top href="http://www.freak.ne.jp/~lunatica/cgi-bin/jump.cgi?goto=http://www.strangeworld.org/cgi-bin/bbs.cgi"$targetwindow>Ⅱ</a>
+
+| <a target=_top href="http://www.strangeworld.cx/cgi-bin/bbs/bbs.cgi?image=0"$targetwindow>ﾏﾘ見て</a>
+| <a target=_top href="http://remix.strangeworld.cx/cgi-bin/bbs.cgi"$targetwindow>ﾘﾐ</a>
+| <a target=_top href="http://qwerty.on.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>qwerty</A>
+/ <a target=_top href="http://strangeworld-hinata.sakura.tv/cgi-bin/bbs.cgi" target="outerworld">ひ</A>
+/ <a target=_top href="http://i-mirai.dyndns.org:8007/cgi-bin/bbs.cgi" target="outerworld">i-mirai</A>
+| <a target=_top href="http://strangeworld-honten.com/cgi-bin/bbs.cgi"$targetwindow>本店</a>
+
+| <a target=_top href="http://meiso.s147.xrea.com/bbs.cgi"$targetwindow>ﾒｲｿ</A>
+/ <a target=_top href="http://meiso.s147.xrea.com/mostviewed/mostviewed.php"$targetwindow>最閲</A>
+| <a target=_top HREF="http://amari.ath.cx/bbs/bbs.cgi"$targetwindow>の</A>
+| <a target=_top href="http://strange.kurumi.ne.jp/bbs2.cgi"$targetwindow>はじあや</a>
+| <a target=_top href="http://www.geocities.co.jp/MusicStar-Vocal/7064/"$targetwindow>偽</a>
+| <a target=_top href="http://www.geocities.co.jp/Milkyway-Vega/4599/"$targetwindow>ぁ</A><a target=_top HREF="http://2.csx.jp/~stwalker/"$targetwindow>W</A>
+
+| <a target=_top HREF="http://strange.onestop.net/"$targetwindow>し</A><a target=_top HREF="http://d.hatena.ne.jp/strange/"$targetwindow>ば</a>
+| <a target=_top HREF="http://reproduction.kurumi.ne.jp/"$targetwindow>転載</A>
+| <a target=_top href="http://www6.pekori.to/~eternal/not-strange/bbs.cgi"$targetwindow>ﾏｯﾀﾘ</a>
+| <a target=_top HREF="http://d.hatena.ne.jp/m4n4/"$targetwindow>ま</a><a target=_top HREF="http://210.166.236.132/~s03219-1/mana/ita.cgi"$targetwindow>な</a>
+| <a target=_top HREF="http://www.superhacker.jp/cgi-bin/andergroundbbs/bbs.cgi"$targetwindow>超割</a>
+
+| <a target=_top href="http://sinreikun.hp.infoseek.co.jp/index.html"$targetwindow>心霊</A>
+| <a target=_top HREF="http://strange.egoism.jp/sovs/"$targetwindow>sov退</a>
+| <a target=_top HREF="http://radio.dot-strange.net/status/"$targetwindow>ZRadio</a>
+| <a target=_top HREF="http://wiki.dot-strange.net/"$targetwindow>暫Wiki</a>
+| <a target=_top HREF="http://533.pr.arena.ne.jp/cgi-bin/yaremix.cgi"$targetwindow>Remi状</a>
+/ <a target=_top HREF="http://www.freak.ne.jp/~lunatica/cgi-bin/yaremix.cgi"$targetwindow>F</a>
+
+| <a target=_top HREF="http://www.ge.st98.arena.ne.jp/gikoneko/nekozon.htm"$targetwindow>猫ｿﾞﾝ(`Д´)</a>
+/ <a target=_top HREF="http://www.garageventure.jp/clubt/shop/S0000000097"$targetwindow>ZAN T</a>
+/ <a target=_top HREF="http://533.pr.arena.ne.jp/namazon.html"$targetwindow>生ｿﾞﾝ</a>
+| <A HREF="mms://nyama.sytes.net:19999"$targetwindow>PooX転送</a>
+<HR>
+<B>本店</B><BR>
+  <a href="http://strangeworld-honten.com/cgi-bin/ih.cgi" target="_blank"><b>i-本店</b></a> |
+  <a href="http://strangeworld-honten.com/cgi-bin/bbs.cgi?m=g&c=b00" target="_blank">過去ログ</a> |
+  <a href="http://strangedb.ath.cx/getlog/honten/getlog.cgi" target="_blank">＠検索</a> |
+  <a href="http://pushd.org/" target="_blank">PushD</a> |
+  <a href="http://strangeworld.cc/~stwalker/" target="_blank">ぁW</a> |
+  <a href="http://jove.prohosting.com/~qoo/link.html" target="_blank">リンク集</a> <b>|</b>
+
+  <a href="http://www.amazon.co.jp/exec/obidos/redirect?tag=strangeworld-22&path=tg/browse/-/497532" target="_blank"><font color="yellow">和書TOP100</font></a>
+  <a href="http://www.amazon.co.jp/exec/obidos/redirect?tag=strangeworld-22&path=tg/browse/-/583332" target="_blank"><font color="yellow">音楽TOP100</font></a>
+  <a href="http://www.strangeworld-honten.com/amazon.html" target="_blank"><font color="orange">amazon検索</font></a> <b>|</b>
+<HR>
+<B>qwerty</B><BR>
+  <a href="http://strangedb.ath.cx/getlog/qwerty/getlog.cgi" target="link">＠検索</a> |
+  <A href="http://qwerty.on.arena.ne.jp/cgi-bin/bbs.cgi?m=o&c=900">読専</A>/<a href="http://qwerty.on.arena.ne.jp/cgi-bin/bbs.cgi?mode=i">imode</a> |
+  <A href="http://a.hatena.ne.jp/ku-haku/" target="link">アンテナ</A>/<a href="http://www.geocities.co.jp/Milkyway-Lynx/2651/" target="link">Z</a> |
+  <A href="http://8812.teacup.com/tin9/bbs" target="link">呂布</A>/<A href="http://www.geocities.co.jp/Milkyway-Aquarius/4472/" target="link">機動武将</A> |
+  <A href="http://www.strangeworld.cx/cgi-bin/bbs/bbs.cgi" target="link">島</A> |
+  <A href="http://strange.kurumi.ne.jp/bbs2.cgi" target="link">はじあや</A> |
+  <A href="http://meiso.s147.xrea.com/bbs.cgi" target="link">ﾒｲｿ</A> |
+  <A href="http://strangeworld-honten.com/cgi-bin/bbs.cgi" target="link">本店</A> |
+  <A href="http://qwerty.on.arena.ne.jp/cgi-bin/r.cgi?http://www.strangeworld.org/cgi-bin/bbs.cgi" target="link">II</A> |
+  <A href="http://amari.ath.cx/bbs/bbs.cgi" target="link">のぞみ</A> |
+  <A href="http://mikan.chips.jp/bbs/bbs.cgi" target="link">みかん</A> |
+  <A href="http://210.136.179.129/cgi-bin/bbs.cgi" target="link">猫</A> |
+  <A href="http://n-styles.com/strangeworld/" target="link">＿</A> |
+  <A href="http://negineesan.fc2web.com/" target="link">ねぎ姉</A> |
+  <A href="http://remix.strangeworld.cx/cgi-bin/bbs.cgi" target="link">Remix</A> |
+  <A href="http://www.chararin.com/board4/cgi/main.cgi" target="link">夕暮れ</A> |
+  <A href="http://strange.egoism.jp/sovs/" target="link">sov退避</A> | あぷ 
+  <A href="http://strange.kir.jp/upload.cgi" target="link">三千</A><A href="http://strange.drive.ne.jp/upload.cgi" target="link">ぁ界</A>/<A href="http://210.136.179.129/cgi-bin/upup.cgi" target="link">猫</A>/<A href="http://krokus.sakura.ne.jp/topun/up.cgi" target="link">トプ</A> |
+  <A href="http://qwerty.on.arena.ne.jp/cgi-bin/r.cgi?http://astirxr.hp.infoseek.co.jp/cgi-bin/jost45/index.html" target="link">絵</A> |
+  <A href="http://qwerty.on.arena.ne.jp/cgi-bin/r.cgi?http://cgi.at.infoseek.co.jp/kugyuu/cgi-bin/meshi.cgi" target="link">めし</A> |
+  <A href="http://members.at.infoseek.co.jp/yukkuri/" target="link">共有</A> |
+  <A href="http://miu.stratos.jp/~strangewa/" target="link">わ</A> |
+  <A href="http://2.csx.jp/~stwalker/" target="link">ぁW</A> |
+  <A href="http://www.geocities.co.jp/Milkyway-Vega/4597/" target="link">すわりんく</A> |
+  <A href="http://www.fujiyuu.com/jigyaku/bbs.cgi" target="link">自虐</A> |
+  <A href="http://yotsuba.saiin.net/~testcard/swr/bbs.cgi" target="link">鐵道</A> |
+
+<BR>
+<B>&lt;PR&gt;</B>
+</FONT>
+<A href="http://www.filesend.to/">宅ふぁいる便(50 MB)</font></A>
+<A href="http://translate.google.com/translate?hl=ja&sl=en&u=http://www.yousendit.com/transfer.php?secure=1">You Send</A><A href="http://www.yousendit.com/transfer.php?secure=1">It(1 GB)<FONT size="-1"></a>
+<HR>
+$tmpl_explanation
+
+EOF
+
+########adminnameがadministratorでなければ表示(暫定本家モード)
+
+	if ( $adminname ne 'administrator' ) {
+
+print $tmpl_link;
+
+}
+
+########
+
+}
+
+sub linklineon {
+
+########zantai用リンク欄追加
+if ( $adminname ne 'administrator' ) {
+$zztt = <<EOF;
+| <A HREF="http://533.pr.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>暫暫</a><A HREF="http://ge.st98.arena.ne.jp/cgi-bin/zt/bbs.cgi"$targetwindow><FONT COLOR=#dddd40>退退</FONT></a> 
+EOF
+
+} else{
+$zztt = <<EOF;
+| <A HREF="http://533.pr.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>暫定</a><A HREF="http://www.ge.st98.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow><FONT COLOR=#dddd40>本家</FONT></a> 
+
+EOF
+}
+
+	# 別掲示板の名前
+	my $alt_name = ($alturl =~ /nazo=777/) ? "なぞ" : "普通";
+
+#print <<EOF;
+
+########zantai用リンク欄追加
+		$tmpl_link = <<EOF;
+<HR>
+  <FONT size="-1">
+| <a href="http://strangedb.ath.cx/getlog/zantei/getlog.cgi">過去ログ</A>
+$zztt
+| <A href="http://yasashiku.site.ne.jp/up/upload.cgi"$targetwindow>あ</A><A HREF="http://www.ge.st98.arena.ne.jp/cgi-bin/up/upload.cgi">ぷ</A>
+| <A href="link.cgi" $targetwindow>リ</A><A href="http://www.geocities.co.jp/MusicStar-Vocal/7064/"$targetwindow>ン</A><A HREF="http://pushd.org/">ク</A>| <A href="test/bbs.cgi"><font color=e0d0d0>愛の劇場</font></A>
+  </FONT>
+| <A href="http://ja.wikipedia.org/wiki/%E5%88%A9%E7%94%A8%E8%80%85:%E6%93%AC%E5%8F%A4%E7%8C%AB"$targetwindow><font color=f0f040>wikipedia:擬古猫</font></a>
+<FONT size="-1" color="$bgc">|</font><A HREF="$alturl"$targetwindow><font color="$bgc">$alt_name</font></A>
+<FONT size="-1" color="$bgc">|</font><A HREF="http://www.ge.st98.arena.ne.jp/cgi-bin/bbs.cgi?nazo=666"><font color="$bgc">裏</font></A>
+<HR>
+  $tmpl_explanation
+
+EOF
+
+########adminnameがadministratorでなければ表示(暫定本家モード)
+
+	if ( $adminname ne 'administrator' ) {
+
+print $tmpl_link;
+
+}
+
+########
+
+#EOF
+
+}
+
+sub linklineoff {
+
+########zantai用リンク欄追加
+if ( $adminname ne 'administrator' ) {
+$zztt = <<EOF;
+| <A HREF="http://533.pr.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>暫暫</a><A HREF="http://ge.st98.arena.ne.jp/cgi-bin/zt/bbs.cgi"$targetwindow>退退</a> 
+EOF
+
+} else{
+$zztt = <<EOF;
+| <A HREF="http://533.pr.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>暫定</a><A HREF="http://www.ge.st98.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>本家</a> 
+EOF
+}
+
+	# 別掲示板の名前
+	my $alt_name = ($alturl =~ /nazo=777/) ? "なぞ" : "普通";
+
+#print <<EOF;
+
+########zantai用リンク欄追加
+		$tmpl_link = <<EOF;
+<HR>
+  <FONT size="-1">$zztt
+| <A href="link.cgi" $targetwindow>リ</A><A href="http://www.geocities.co.jp/MusicStar-Vocal/7064/"$targetwindow>ンク</A>
+| <A href="http://www.ge.st98.arena.ne.jp/cgi-bin/v2006/votec.cgi"$targetwindow><font color=f0f040>暫定大賞2006</font></a>
+<font color="$bgc">|</font><A HREF="$alturl"$targetwindow><font color="$bgc">$alt_name</font></A>
+<font color="$bgc">|</font><A HREF="http://www.ge.st98.arena.ne.jp/cgi-bin/bbs.cgi?nazo=666"><font color="$bgc">裏</font></A>
+  </FONT>
+<HR>
+  $tmpl_explanation
+
+EOF
+
+########adminnameがadministratorでなければ表示(暫定本家モード)
+
+	if ( $adminname ne 'administrator' ) {
+
+print $tmpl_link;
+
+}
+
+########
+
+#EOF
+
+}
+
+
+
+1;
+
+
+
+__END__
+| <A HREF="http://at-fashion.com/cgi-bin/talkbbs/bbs.cgi"$targetwindow>ふぁ</A>
+| <A HREF="http://www.rhizome.to/"$targetwindow>り</a>
+/ <A HREF="http://www.rhizome.to/mana/ita.cgi"$targetwindow>俎</a>
+
+/ <A HREF="http://hainuwele.s5.x-beat.com/cgi-bin/nazo.cgi"$targetwindow>◎</a>
+| <A HREF="http://www.amezo2000.com/link/"$targetwindow>飴2K</a>
+| <A HREF="http://negimiso.virtualave.net/cgi-bin/bake.cgi"$targetwindow>葱</a>
+<A HREF="http://www.zdnet.co.jp/internet/runner/"$targetwindow><font color="$bgc">| ﾈﾄﾗﾝ</font></a>
+<A HREF="http://www.ag.wakwak.com/~lay/aniota/"$targetwindow><font color="$bgc">| ｱﾆｵﾀ</font></a>
+<A HREF="http://www.tcn.ne.jp/~holycure/cam/"$targetwindow><font color="#eeee40">| Live!</font></a>
+/ <A HREF="http://vendemiaire.hypermart.net/cgi-bin/nazo.cgi"$targetwindow>◎</a>
+| <A HREF="http://www.edoya.neko.to/upload.cgi"$targetwindow>遺産</A>
+| <A HREF="http://edoya.dyndns.org/cgi-bin/mmmmmm/upload.cgi"$targetwindow>遺産</A>
+<!--
+/ <A href="http://jk.st6.arena.ne.jp/cgi-bin/source.cgi"$targetwindow>肉</A>
+/ <A href="http://tamago.fatal.ru/cgi-bin/upload.cgi"$targetwindow>卵</A>
+/ <A href="http://strange.s14.xrea.com:8080/mail/"$targetwindow>写ﾒ</A>
+/ <A href="http://www.kuzu.org/"$targetwindow>屑</A>
+ -->
+<!-- | <A href="http://jk.st6.arena.ne.jp/cgi-bin/bbs.cgi"$targetwindow>Ｚ</A> -->
+/ <A HREF="http://zanteigame.s12.xrea.com/"$targetwindow>ｹﾞｰﾑ</A>
+/ <A href="http://ocha.netfirms.com/cgi-bin/up.cgi"$targetwindow>旦~</A>
+| <A HREF="http://www.edoya.neko.to/upload.cgi"$targetwindow>遺産</A>
+/ <A HREF="http://www.fwappy.com/~dansidaisei/nami.php?title=暫定"$targetwindow>な暫</A>
+|<s><A HREF="http:///nazo.ug.to/cgi-bin/nazo.cgi"$targetwindow>なぞ 2004</a></s>
+/ <A HREF="http://www.google.com/url?sa=D&q=http://taiyaqui.hp.infoseek.co.jp/cgi-bin/nazo.cgi"$targetwindow>鯛</a>
+| <A HREF="http://salonweb.s54.xrea.com/blog/"$targetwindow>某S</A>
+| <A HREF="http://www.google.com/url?sa=D&q=http://evendeeper.hp.infoseek.co.jp/cgi-bin/bbs.cgi"$targetwindow><font size="-2" color="$bgc">怨</font></A>
+
+| <A HREF="http://strangeworld.gasuki.com/cgi-bin/cal/cal.cgi"$targetwindow>予定</A>
+| <A HREF="http://www.media-k.co.jp/jiten/"$targetwindow>２典</a>
+|| <A HREF="http://www.moedoll.com/"$targetwindow>萌</a>
+  <A HREF="http://www.ge.st98.arena.ne.jp/cgi-bin/s3ta/w_s3taix.cgi"$targetwindow>(o o) 旦~</a>
+| <A href="$cgiurl?nazo=666" $targetwindow accesskey="O">過去ﾛｸﾞ</A>
+| <A HREF="http://www.org1.com/~osamu/bbs.cgi"$targetwindow>ﾒｲｿ</A>
+| <A HREF="http://strangeworld.cc/pw/"$targetwindow>w</a>
+/ <A HREF="http://dragonpit.org/zanteigame/"$targetwindow>ｹﾞｰﾑ</A>
+||<A HREF="http://rain.prohosting.com/fuckirc/"$targetwindow>iRC</A>
+/ <A href="http://temp.s17.xrea.com:8080"$targetwindow>ｹﾞｯﾁｭ</a>
+| <A HREF="http://krokus.sakura.ne.jp/cgi-bin/bbs.cgi"$targetwindow>苦情</a>
+| <A href="http://www.ge.st98.arena.ne.jp/cgi-bin/votecom/votec.cgi"$targetwindow>暫定大賞2004</a>
+| <A HREF="http://kotei.s9.xrea.com:8080/zanst/"$targetwindow>暫スト</A>
+/ <A HREF="http://kotei.s9.xrea.com:8080/vote/vote.php"$targetwindow>固定</A>
+/ <A HREF="http://strangeworld.cc/~stranged/cgi-bin/bbs.cgi""$targetwindow>鐵</a>
+| <A HREF="http://www.geocities.co.jp/Milkyway-Lynx/2691/bbs.html"$targetwindow>わげお</a>
+| <A href="http://at-fashion.com/cgi-bin/ub/bbs.cgi"$targetwindow>UB</a>

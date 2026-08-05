@@ -16,9 +16,14 @@ The script set is released under the MIT License — see [LICENSE.md](LICENSE.md
 Character-art (AA) assets by 擬古猫 are released separately under AAAPS — see [gikonekos/aaaps](https://github.com/gikonekos/aaaps).
 Copyright layers and contributor credits are listed in [NOTICE.md](NOTICE.md).
 
-## Related projects
+## Related Projects
 
-- [kuzuhascript-utf8](https://github.com/gikonekos/kuzuhascript-utf8) — a parallel modernization of the original kuzuhascript codebase (Perl, CP932→UTF-8)
+| Repository | Relationship |
+|------------|-------------|
+| [kuzuhascript-utf8](https://github.com/gikonekos/kuzuhascript-utf8) | Parallel modernization of the original kuzuhascript codebase (Perl, CP932→UTF-8) |
+| [kuzuhascript-archive](https://github.com/gikonekos/kuzuhascript-archive) | Historical archive of original kuzuhascript distribution files |
+| [legacy-bbs-toolkit](https://github.com/gikonekos/legacy-bbs-toolkit) | Preprocessing toolkit for legacy Japanese BBS archives |
+| [ksphp-plus-gikonekos](https://github.com/gikonekos/ksphp-plus-gikonekos) | PHP successor in the same BBS tradition |
 
 ## Changelog
 
@@ -46,7 +51,12 @@ See [doc/changelog.md](doc/changelog.md) for a summary of changes made in this p
 
 ## 関連プロジェクト
 
-- [kuzuhascript-utf8](https://github.com/gikonekos/kuzuhascript-utf8) — くずはすくりぷと原本を対象とした並行モダナイズプロジェクト（Perl、CP932→UTF-8）
+| リポジトリ | 関係 |
+|------------|------|
+| [kuzuhascript-utf8](https://github.com/gikonekos/kuzuhascript-utf8) | くずはすくりぷと原本を対象とした並行モダナイズプロジェクト |
+| [kuzuhascript-archive](https://github.com/gikonekos/kuzuhascript-archive) | くずはすくりぷと配布ファイルの歴史的アーカイブ |
+| [legacy-bbs-toolkit](https://github.com/gikonekos/legacy-bbs-toolkit) | 旧日本語BBSアーカイブの前処理ツールキット |
+| [ksphp-plus-gikonekos](https://github.com/gikonekos/ksphp-plus-gikonekos) | 同じBBS文化の流れを汲むPHP後継プロジェクト |
 
 ## 変更履歴
 

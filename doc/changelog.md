@@ -2,6 +2,10 @@
 
 Summary of changes made in the zantei-utf8 project, relative to the original `zantei20070218` server image.
 
+## 2026-08-06
+
+- Fixed vulnerability 4 (dangerous URL scheme injection via `$FORM{'l'}`) in `bbs.txt`, `i.txt`, `nazo777.txt`, and `zbbs.cgi`: replaced the previous `javascript/i` keyword check (which could be bypassed via `vbscript:`, `data:`, leading whitespace, etc., and broke `&xx;` character references by converting `:` to a fullwidth colon) with a whitelist approach that only allows `https?://` and `ftp://` prefixes; any other value is cleared to an empty string
+
 ## 2026-07-26
 
 - Removed the three now-unused `jcode.pl` copies (`cgi-bin/jcode.pl`, `cgi-bin/up/lib/jcode.pl`, `cgi-bin/ziten/jcode.pl`); all `require` call sites had already been commented out on 2026-07-18, and no live references remained

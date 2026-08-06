@@ -522,11 +522,11 @@ sub register
 	# 辞書ファイルに書きこみ（ロック処理あり）
 	#perlのプロセス番号のテンポラリーを作成・書込
 	$tmp_dummy = "$$\.tmp";
-	open(TMP,">$tmp_dummy") || die "Can't create tmp file.\n";
+	open(TMP, '>', $tmp_dummy) || die "Can't create tmp file.\n";
 	close(TMP);
 	#パーミッションを変更
 	chmod 0666,$tmp_dummy;
-	open(TMP,">$tmp_dummy") || die "Can't open tmp file.\n";
+	open(TMP, '>', $tmp_dummy) || die "Can't open tmp file.\n";
 	print TMP (@OUT_LINES);
 	close(TMP);
 	rename($tmp_dummy,$data_file);

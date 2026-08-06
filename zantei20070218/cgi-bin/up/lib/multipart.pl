@@ -63,7 +63,7 @@ sub get_multipart {
 		if ($fname) {	# 添付ファイル
 			my $upload = &_new_upload_file($fname, $ct, $field, $tmpdir);
 			
-			open(UPLOAD, "> $upload->{tmpfile}")
+			open(UPLOAD, '>', $upload->{tmpfile})
 				or die("添付ファイルの出力に失敗しました\n");
 			binmode(UPLOAD);
 			

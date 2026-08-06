@@ -76,7 +76,7 @@ sub read_counter ($$) {
     if (-f $master_file) {
       READ: {
   if ($t < 10) {
-      open(F,$master_file)
+      open(F, '<', $master_file)
   or $t++ and sleep(0.1) and redo READ;
       $master_nu = <F>;
       close(F);
@@ -92,7 +92,7 @@ sub read_counter ($$) {
     if (-f $slave_file) {
       READ: {
   if ($t < 10) {
-      open(F,$slave_file)
+      open(F, '<', $slave_file)
   or $t++ and sleep(0.1) and redo READ;
       $slave_nu = <F>;
       close(F);
@@ -122,7 +122,7 @@ sub write_counter ($$$) {
     if ($nu > 0) {
       WRITE: {
   if ($t < 10) {
-      open(F,">$master_file")
+      open(F, '>', $master_file)
   or $t++ and sleep(0.1) and redo WRITE;
       flock(F,LOCK_EX);
       seek(F,0,0);
@@ -135,7 +135,7 @@ sub write_counter ($$$) {
     if ($nu > 0 && $nu % 4 == 0) {
       WRITE: {
   if ($t < 10) {
-      open(F,">$slave_file")
+      open(F, '>', $slave_file)
   or $t++ and sleep(0.1) and redo WRITE;
       flock(F,LOCK_EX);
       seek(F,0,0);
@@ -167,7 +167,7 @@ sub remote_addr_check ($$$$$) {
     for (my $n=0;$n <= $lifetime;$n++) {
 my $filename=$now_filename - $n;
 if (-f "$dbdir/$filename") {
-    open(F,"$dbdir/$filename");
+    open(F, '<', "$dbdir/$filename");
     while (<F>) {
 if (/^$pattern_ip;(\d+)/o) {
     $status = 1;
@@ -182,7 +182,7 @@ if (/^$pattern_ip;(\d+)/o) {
 
     if ($status == 0) {
 $number++;
-open(F,">>$dbdir/$now_filename");
+open(F, '>>', "$dbdir/$now_filename");
 flock(F,LOCK_EX | LOCK_NB) or
     flock(F,LOCK_EX);
 seek(F,0,2);

@@ -1,5 +1,5 @@
-#! /usr/local/bin/perl
-#! c:/online/perl/bin/perl
+#!/usr/bin/perl
+# 変更する場合: ##!/usr/local/bin/perl
 use strict;
 my $title       = 'すぷりくとヽ(´ー｀)ノ';
 my $cgiurl      = 'dlist.cgi';

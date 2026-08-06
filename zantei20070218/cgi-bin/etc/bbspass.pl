@@ -1,4 +1,5 @@
-#! /usr/local/bin/perl
+#!/usr/bin/perl
+# 変更する場合: ##!/usr/local/bin/perl
 
 # 管理人の名前
 # 管理人のメールアドレス

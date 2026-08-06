@@ -1,4 +1,5 @@
-#! /usr/local/bin/perl
+#!/usr/bin/perl
+# 変更する場合: ##!/usr/local/bin/perl
 
 # 引数にジャンプ先のURLを与えてください
 # ↓は使用例です(設置URLがhttp://www.ge.st98.arena.ne.jp/cgi-bin/r.cgiの場合)

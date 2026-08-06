@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# 変更する場合: ##!/usr/local/bin/perl
 ##
 ##  printenv -- demo CGI program which just prints its environment
 ##

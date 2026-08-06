@@ -1,4 +1,5 @@
-#! /usr/local/bin/perl
+#!/usr/bin/perl
+# 変更する場合: ##!/usr/local/bin/perl
 
 =comment
 くずはスクリプト用のtree表示スクリプト ver0.9 (03/05/12)

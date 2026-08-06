@@ -1,4 +1,5 @@
 #!/usr/bin/perl  --           # Access Counter Version 2.2
+# 変更する場合: ##!/usr/local/bin/perl
 
 $COUNT_FILE   = 'counter.dat';
 $COUNT_FILE2  = 'counter.bak';

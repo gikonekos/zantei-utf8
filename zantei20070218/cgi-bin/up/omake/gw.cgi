@@ -1,4 +1,5 @@
-#! /usr/local/bin/perl
+#!/usr/bin/perl
+# 変更する場合: ##!/usr/local/bin/perl
 #
 # gw.cgi
 #   何らかの理由で直接ファイルをダウンロードさせたくない場合に使用する

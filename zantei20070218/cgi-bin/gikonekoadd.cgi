@@ -1,4 +1,5 @@
-#! /usr/local/bin/perl
+#!/usr/bin/perl
+# 変更する場合: ##!/usr/local/bin/perl
 
 # jcode.plのパス
 # [2026-07-18] jcode.pl不使用化（スタンドアロン方針、猫）

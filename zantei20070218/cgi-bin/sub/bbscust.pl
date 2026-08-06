@@ -1,4 +1,5 @@
-#! /usr/local/bin/perl
+#!/usr/bin/perl
+# 変更する場合: ##!/usr/local/bin/perl
 
 #
 #	くずはすくりぷと Rev.0.1 Preview 9 (2000.9.3)

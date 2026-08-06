@@ -25,6 +25,12 @@ Copyright layers and contributor credits are listed in [NOTICE.md](NOTICE.md).
 | [legacy-bbs-toolkit](https://github.com/gikonekos/legacy-bbs-toolkit) | Preprocessing toolkit for legacy Japanese BBS archives |
 | [ksphp-plus-gikonekos](https://github.com/gikonekos/ksphp-plus-gikonekos) | PHP successor in the same BBS tradition |
 
+## Requirements
+
+Perl 5.38 or later. No CPAN or XS modules are required for core functionality.
+
+**Optional:** The [`GD`](https://metacpan.org/pod/GD) module (CPAN/XS, requires libgd) is needed only for the mojie image-to-AA conversion feature (`mojie/aa.pl`). Without GD, all other features work normally; the image-to-AA feature returns a "GD not installed" message.
+
 ## Changelog
 
 See [doc/changelog.md](doc/changelog.md) for a summary of changes made in this project.
@@ -57,6 +63,12 @@ See [doc/changelog.md](doc/changelog.md) for a summary of changes made in this p
 | [kuzuhascript-archive](https://github.com/gikonekos/kuzuhascript-archive) | くずはすくりぷと配布ファイルの歴史的アーカイブ |
 | [legacy-bbs-toolkit](https://github.com/gikonekos/legacy-bbs-toolkit) | 旧日本語BBSアーカイブの前処理ツールキット |
 | [ksphp-plus-gikonekos](https://github.com/gikonekos/ksphp-plus-gikonekos) | 同じBBS文化の流れを汲むPHP後継プロジェクト |
+
+## 動作要件
+
+Perl 5.38以降。コア機能の利用にCPAN/XSモジュールの追加導入は不要です。
+
+**オプション：** [`GD`](https://metacpan.org/pod/GD)モジュール（CPAN/XS、libgd必須）は、文字絵の画像変換機能（`mojie/aa.pl`）を使う場合のみ必要です。GDが未導入の場合でも他の全機能は正常に動作します（画像変換時に「GDが導入されていません」旨のメッセージを返します）。
 
 ## 変更履歴
 

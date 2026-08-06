@@ -1,8 +1,8 @@
 # /usr/bin/perl
 
-use lib '/home/ax160/lib/i386-freebsd';
 use strict;
-use GD;
+# GD is an optional dependency: the mojie image-to-AA feature is enabled only when GD is installed.
+our $HAS_GD = eval { require GD; 1 } ? 1 : 0;
 
 #幅
 my $max_width  = 150;
@@ -98,6 +98,10 @@ sub image2asciiart {
 	
 	
 	my ($opt) = shift;
+	
+	unless ($HAS_GD) {
+		return (undef, undef, undef, "画像処理ライブラリ(GD)が導入されていないため、文字絵の画像化機能は利用できません。管理者にGDモジュールの導入をご依頼ください。");
+	}
 	
 	my ($im, $srcw, $srch, $w, $h, $transparent, $zanpallet, $zpal_to_text, $textdata);
 	

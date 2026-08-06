@@ -1137,8 +1137,9 @@ sub chkmessage {
 	#javascript:for(;;){window.open();}
 	#javascript:open('../diary/diary.html');
 
-	if ( $FORM{'l'} =~ /javascript/i ) {
-		$FORM{'l'} =~ s/:/：/gi;
+	# [2026-08-06修正] javascript:等の危険なスキームをホワイトリスト方式で排除（猫）
+	unless ( $FORM{'l'} =~ m|^https?://|i || $FORM{'l'} =~ m|^ftp://|i ) {
+		$FORM{'l'} = '';
 	}
 
 	if ( $FORM{'l'} =~ /\s+/ || !$FORM{'l'} ) {

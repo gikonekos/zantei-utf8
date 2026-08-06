@@ -73,3 +73,49 @@ Perl 5.38以降。コア機能の利用にCPAN/XSモジュールの追加導入�
 ## 変更履歴
 
 このプロジェクトでの変更点のサマリーは[doc/changelog.md](doc/changelog.md)を参照してください。
+
+---
+
+## Installation / 導入方法
+
+### English
+
+1. Clone or download this repository.
+2. Upload the contents of `zantei20070218/cgi-bin/` to your server's CGI directory.
+3. Set executable permissions (`chmod 755`) on all `.cgi` files.
+4. Edit `bbsset.txt` to match your environment. Key settings:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `$bbshost` | Hostname or IP of your server | `example.com` ← **change this** |
+| `$gzip` | Path to gzip binary (leave empty to disable compression) | `''` |
+| `$logfilename` | Path to the log file | `./bbs.log` |
+| `$countfile` | Path prefix for counter files | `./count/count` |
+| `$logsave` | Number of messages to retain | `2000` |
+| `$difftime` | Time offset from JST in hours (0 = Japan) | `0` |
+| `$protect_a` | Anti-double-post code part A — **change before deployment** | sample value |
+| `$protect_b` | Anti-double-post code part B — **change before deployment** | sample value |
+
+5. If you want the mojie image-to-AA conversion feature, install the `GD` module (see Requirements above). Otherwise all other features work without it.
+
+---
+
+### 日本語
+
+1. このリポジトリをクローンまたはダウンロードします。
+2. `zantei20070218/cgi-bin/` の中身をサーバーのCGIディレクトリにアップロードします。
+3. すべての `.cgi` ファイルに実行権限（`chmod 755`）を設定します。
+4. `bbsset.txt` を環境に合わせて編集します。主な設定項目：
+
+| 変数 | 説明 | デフォルト |
+|------|------|-----------|
+| `$bbshost` | サーバーのホスト名またはIPアドレス | `example.com` ← **要変更** |
+| `$gzip` | gzip バイナリのパス（空のままで圧縮転送無効） | `''` |
+| `$logfilename` | ログファイルのパス | `./bbs.log` |
+| `$countfile` | カウンターファイルのパスの先頭部分 | `./count/count` |
+| `$logsave` | 保持するメッセージ数 | `2000` |
+| `$difftime` | JSTとの時差（0＝日本） | `0` |
+| `$protect_a` | 連続投稿防止コードA — **導入前に必ず変更** | サンプル値 |
+| `$protect_b` | 連続投稿防止コードB — **導入前に必ず変更** | サンプル値 |
+
+5. 文字絵の画像変換機能（mojie）を使う場合は `GD` モジュールを導入してください（上記「動作要件」参照）。それ以外の機能はGDなしで動作します。

@@ -627,7 +627,7 @@ sub prtmessage {
 
 	# メッセージ表示内容定義
 	# [2026-08-06追加] ttp://・ttps://をリンク表示に変換（表示のみ、ログ保存値は変更しない）（猫）
-	$msg =~ s|(?<![hH])((ttps?)://[-_.,!~*'()a-zA-Z0-9;/?:@&=+\$,%#]+)|<A href="h$1" target="link">$1</A>|g;
+	$msg =~ s|(?<![hH"'])((ttps?)://[-_.,!~*'()a-zA-Z0-9;/?:@&=+\$,%#]+)|<A href="h$1" target="link">$1</A>|g;
 
 	$prtmessage = qq(<A name="$postid"></A>\n$tmpl_msg);
 	$prtmessage =~ s/(\$[A-Za-z0-9\'\{\}]+)/$1/eeg;

@@ -4,6 +4,7 @@ Summary of changes made in the zantei-utf8 project, relative to the original `za
 
 ## 2026-08-06
 
+- Added `ttp://`/`ttps://` display-time link conversion in `prtmessage` of `bbs.txt`, `zbbs.cgi`, and `nazo777.txt`: rewritten as `<A href="http(s)://...">ttp://...</A>` at render time without modifying the stored log; only triggers when not immediately preceded by `h`/`H`, to avoid double-converting `http(s)://`. Motivated by the community convention of writing `ttp://` instead of `http://` to deter URL-pasting spam and bots
 - Fixed vulnerability 4 (dangerous URL scheme injection via `$FORM{'l'}`) in `bbs.txt`, `i.txt`, `nazo777.txt`, and `zbbs.cgi`: replaced the previous `javascript/i` keyword check (which could be bypassed via `vbscript:`, `data:`, leading whitespace, etc., and broke `&xx;` character references by converting `:` to a fullwidth colon) with a whitelist approach that only allows `https?://` and `ftp://` prefixes; any other value is cleared to an empty string
 
 ## 2026-07-26

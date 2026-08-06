@@ -28,10 +28,11 @@ $copyright = "
 # $gzip = '/usr/bin/gzip';
 # $gzip = '/usr/sbin/gzip';
 # $gzip = '/usr/local/bin/gzip';
-$gzip = '/bin/gzip';
+$gzip = '';  # 使用しない場合は空のまま（圧縮転送を使う場合は上記コメントを参考にパスを指定）
 
 # CGIを設置するホストアドレス
-$bbshost = 'www.ge.st98.arena.ne.jp';
+# ↓ 設置するサーバーのホスト名またはIPアドレスに変更してください
+$bbshost = 'example.com';
 
 # ログファイル名
 $logfilename = './bbs.log';
@@ -222,8 +223,9 @@ $maxmsgsize = ($maxmsgcol * $maxmsgline) + 1;
 
 
 # 連続投稿防止コード（必ず変更すること）
-$protect_a = 15397564;	# 0以外の数字から始まる8桁の数字
-$protect_b = 34;		# 0以外の数字から始まる2桁の数字
+# ↓ 導入前に必ずランダムな値に書き換えてください
+$protect_a = 15397564;	# サンプル値 — 0以外で始まる8桁の数字
+$protect_b = 34;		# サンプル値 — 0以外で始まる2桁の数字
 
 # 自動リンク機能の初期値
 #   0 : 無効

@@ -4,7 +4,8 @@ Summary of changes made in the zantei-utf8 project, relative to the original `za
 
 ## 2026-08-06
 
-- Added `ttp://`/`ttps://` display-time link conversion in `prtmessage` of `bbs.txt`, `zbbs.cgi`, and `nazo777.txt`: rewritten as `<A href="http(s)://...">ttp://...</A>` at render time without modifying the stored log; only triggers when not immediately preceded by `h`/`H`, to avoid double-converting `http(s)://`. Motivated by the community convention of writing `ttp://` instead of `http://` to deter URL-pasting spam and bots
+- Unified shebang line to `#!/usr/bin/perl` across all `.cgi` and `.pl` files (40 files); added a comment on the following line `# 変更する場合: ##!/usr/local/bin/perl` so the alternative path is documented but cannot be accidentally executed (double `#` neutralises the shebang); removed two Windows-path shebang lines (`#! c:/online/perl/bin/perl`) that had been left as a second line in `dlist.cgi` and `sub/index.cgi`
+- Added `ttp://`/`ttps://` display-time link conversion in `prtmessage` of `bbs.txt`, `zbbs.cgi`, and `nazo777.txt`: rewritten as `<A href="http(s)://...">ttp://...</A>` at render time without modifying the stored log; lookbehind `(?<![hH"'])` prevents conversion inside existing HTML attribute values (e.g. in nazo/tag-permit mode) and avoids double-converting `http(s)://`; motivated by the community convention of writing `ttp://` to deter URL-pasting spam and bots
 - Fixed vulnerability 4 (dangerous URL scheme injection via `$FORM{'l'}`) in `bbs.txt`, `i.txt`, `nazo777.txt`, and `zbbs.cgi`: replaced the previous `javascript/i` keyword check (which could be bypassed via `vbscript:`, `data:`, leading whitespace, etc., and broke `&xx;` character references by converting `:` to a fullwidth colon) with a whitelist approach that only allows `https?://` and `ftp://` prefixes; any other value is cleared to an empty string
 
 ## 2026-07-26

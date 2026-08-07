@@ -35,6 +35,10 @@ Perl 5.38 or later. No CPAN or XS modules are required for core functionality.
 
 See [doc/changelog.md](doc/changelog.md) for a summary of changes made in this project.
 
+## Dynamic Save / Script
+
+[gikonekos.com zantei-utf8](https://gikonekos.com/cgi-bin/z/bbs.cgi)
+
 ---
 
 # zantei-utf8（日本語）
@@ -119,3 +123,7 @@ Perl 5.38以降。コア機能の利用にCPAN/XSモジュールの追加導入�
 | `$protect_b` | 連続投稿防止コードB — **導入前に必ず変更** | サンプル値 |
 
 5. 文字絵の画像変換機能（mojie）を使う場合は `GD` モジュールを導入してください（上記「動作要件」参照）。それ以外の機能はGDなしで動作します。
+
+## 動態保存・スクリプト
+
+[gikonekos.com zantei-utf8](https://gikonekos.com/cgi-bin/z/bbs.cgi)
